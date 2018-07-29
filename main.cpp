@@ -11,6 +11,7 @@
 
 #include <windows.h>
 #include <ws2tcpip.h>
+#include <thread>
 
 #else
 
