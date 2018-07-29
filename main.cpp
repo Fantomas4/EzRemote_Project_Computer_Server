@@ -10,6 +10,7 @@
 #include<winsock2.h>
 
 #include <windows.h>
+#include <ws2tcpip.h>
 
 #else
 
@@ -19,9 +20,9 @@
 #include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */
 #include <unistd.h> /* Needed for close() */
 
-#endif
-
 typedef int SOCKET;
+
+#endif
 
 #define DEFAULT_BUFLEN 512
 
