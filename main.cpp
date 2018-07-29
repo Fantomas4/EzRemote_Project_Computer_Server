@@ -1,4 +1,7 @@
 #include <iostream>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 #ifdef _WIN32
 
@@ -8,7 +11,17 @@
 
 #include <windows.h>
 
+#else
+
+/* Assume that any non-Windows platform uses POSIX-style sockets instead. */
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */
+#include <unistd.h> /* Needed for close() */
+
 #endif
+
+typedef int SOCKET;
 
 #define DEFAULT_BUFLEN 512
 
@@ -129,31 +142,69 @@ private:
         }
     }
 
+    int sockInit() {
+        #ifdef _WIN32
+            WSADATA wsa_data;
+            return WSAStartup(MAKEWORD(1,1), &wsa_data);
+        #else
+            return 0;
+        #endif
+    }
 
-    void remote_server(){
+    /* Note: For POSIX, typedef SOCKET as an int. */
+
+    int sockClose(SOCKET sock) {
+
+        int status = 0;
+
+        #ifdef _WIN32
+            status = shutdown(sock, SD_BOTH);
+            if (status == 0) {
+                status = closesocket(sock);
+            }
+        #else
+            status = shutdown(sock, SHUT_RDWR);
+            if (status == 0) {
+                status = close(sock);
+            }
+        #endif
+
+            return status;
+
+    }
+
+    int sockQuit() {
+        #ifdef _WIN32
+            return WSACleanup();
+        #else
+            return 0;
+        #endif
+    }
+
+
+    void remote_server() {
         // sets up a server used to listen for and accept commands from remote clients
 
-        WSADATA wsa;
         SOCKET s , new_socket;
         struct sockaddr_in server , client;
-        int c;
+        //int c;
+        socklen_t c;
         char *message;
         unsigned short PORT = 7789;
         int recv_size;
         char recv_buf[DEFAULT_BUFLEN];
         int recv_buf_len = DEFAULT_BUFLEN;
 
-        printf("\nInitialising Winsock...");
-        if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
-        {
-            printf("Failed. Error Code : %d",WSAGetLastError());
+        printf("\nInitialising socket...");
+        if (sockInit() != 0) {
+            printf("Socket initialization failed.");
         }
-        printf("Initialised.\n");
+        printf("Socket initialised!\n");
 
         //Create a socket
-        if((s = socket(AF_INET , SOCK_STREAM , 0 )) == INVALID_SOCKET)
-        {
-            printf("Could not create socket : %d" , WSAGetLastError());
+        if((s = socket(AF_INET , SOCK_STREAM , 0 )) == 0) {
+            // 0 means INVALID_SOCKET in WinSock
+            printf("Error. Could not create socket.");
         }
         printf("Socket created.\n");
 
@@ -163,12 +214,11 @@ private:
         server.sin_port = htons(PORT);
 
         //Bind
-        if( bind(s ,(struct sockaddr *)&server , sizeof(server)) == SOCKET_ERROR)
-        {
-            printf("Bind failed with error code : %d" , WSAGetLastError());
+        if( bind(s ,(struct sockaddr *)&server , sizeof(server)) == -1) {
+            printf("Socket bind failed.");
             exit(EXIT_FAILURE);
         }
-        puts("Bind done");
+        puts("Socket bind done");
 
         //Listen to incoming connections
         listen(s , 3);
@@ -178,16 +228,18 @@ private:
 
         c = sizeof(struct sockaddr_in);
 
-        while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != INVALID_SOCKET )
-        {
+        while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != 0 ) {
+
+            // 0 means INVALID_SOCKET in WinSock
+
             puts("Connection accepted");
 
             // Receive the client message
-            if((recv_size = recv(new_socket, recv_buf, recv_buf_len, 0)) == SOCKET_ERROR)
-            {
-                puts("recv failed");
+            if((recv_size = recv(new_socket, recv_buf, recv_buf_len, 0)) == -1) {
+                // -1 means SOCKET_ERROR in WinSock
+                puts("Receive failed");
             }
-            puts("Reply received\n");
+            puts("Reply received!\n");
 
             //Add a NULL terminating character to make it a proper string before printing
             recv_buf[recv_size] = '\0';
@@ -201,13 +253,13 @@ private:
             send(new_socket , message , strlen(message) , 0);
         }
 
-        if (new_socket == INVALID_SOCKET)
-        {
-            printf("accept failed with error code : %d" , WSAGetLastError());
+        if (new_socket == 0) {
+            // 0 means INVALID_SOCKET in WinSock
+            printf("accept failed!");
         }
 
-        closesocket(s);
-        WSACleanup();
+        sockClose(s);
+        sockQuit();
     }
 
     void execute_shutdown_command(){
@@ -221,8 +273,14 @@ private:
         // executes the sleep timer that puts the application in a hold
         // for a requested amount of time.
 
-        cout << "get_msecs: " << time_data.get_msecs() << "\n";
-        Sleep(time_data.get_msecs());
+        #ifdef _WIN32
+            cout << "get_msecs: " << time_data.get_msecs() << "\n";
+            Sleep(time_data.get_msecs());
+        #else
+            // usleep takes sleep time in us (1 millionth of a second)
+            usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+        #endif
+
         this->execute_shutdown_command();
     }
 
