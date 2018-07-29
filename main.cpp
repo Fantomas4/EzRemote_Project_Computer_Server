@@ -19,6 +19,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */
 #include <unistd.h> /* Needed for close() */
+#include <thread>
 
 typedef int SOCKET;
 
@@ -247,7 +248,8 @@ private:
             puts(recv_buf);
 
             // Process the received message to determine the client's given command
-            this->process_received_message(recv_buf);
+            //this->process_received_message(recv_buf);
+            std::thread t1(&App::process_received_message, this, recv_buf);
 
             //Reply to the client
             message = "Hello Client , I have received your connection. But I have to go now, bye\n";
