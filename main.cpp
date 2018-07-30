@@ -12,6 +12,7 @@
 #include <windows.h>
 #include <ws2tcpip.h>
 #include <thread>
+#include <vector>
 
 #else
 
@@ -69,123 +70,110 @@ class App {
 
 private:
 
-    void process_received_message(char *recv_msg){
+    class MsgAnalysisThread {
 
-        int pos = 0;
-        string command;
+    private:
+        char *recv_msg;
+        //RemoteServer *appPtr;
+        std::thread msg_analysis_thread;
+
+        void process_received_message(char *recv_msg){
+
+            int pos = 0;
+            string command;
 
 
-        while(recv_msg[pos] != ' '){
-            command += recv_msg[pos];
-            pos ++;
+            while(recv_msg[pos] != ' '){
+                command += recv_msg[pos];
+                pos ++;
+            }
+            cout << "The command is: " << command << endl;
+
+            if (command == "shutdown"){
+
+                // The shutdown command is followed by the time set in the following format:
+                // shutdown hh mm ss ms
+
+                string s_hrs;
+                string s_mins;
+                string s_secs;
+                string s_msecs;
+
+                // advance to the next position of recv_msg (after space)
+                pos ++;
+
+                cout << "TEST: " << recv_msg[pos] << endl;
+
+                // extract the hours number from recv_msg
+                while(recv_msg[pos] != ' '){
+                    s_hrs += recv_msg[pos];
+                    pos ++;
+                }
+
+                cout << "s_hrs: " << s_hrs << endl;
+
+                // advance to the next position of recv_msg (after space)
+                pos ++;
+
+                // extract the mins number from recv_msg
+                while(recv_msg[pos] != ' '){
+                    s_mins += recv_msg[pos];
+                    pos ++;
+                }
+
+                cout << "s_mins: " << s_mins << endl;
+
+                // advance to the next position of recv_msg (after space)
+                pos ++;
+
+                // extract the secs number from recv_msg
+                while(recv_msg[pos] != ' '){
+                    s_secs += recv_msg[pos];
+                    pos ++;
+                }
+
+                cout << "s_secs: " << s_secs << endl;
+
+                // advance to the next position of recv_msg (after space)
+                pos ++;
+
+                // extract the msecs number from recv_msg
+                while(recv_msg[pos] != ' ' && recv_msg[pos] != '\0'){
+                    s_msecs += recv_msg[pos];
+                    pos ++;
+                }
+
+                cout << "s_msecs: " << s_msecs << endl;
+
+                cout << "Time data extracted: " << stoi(s_hrs) << stoi(s_mins) << stoi(s_secs) << stoi(s_msecs) << endl;
+
+                // call execute_sleep_timer() method
+//                this->execute_sleep_timer(TimeObject((unsigned int)stoi(s_hrs), (unsigned int)stoi(s_mins),
+//                                                     (unsigned int)stoi(s_secs), (unsigned int)stoi(s_msecs)));
+            }
         }
-        cout << "The command is: " << command << endl;
+    public:
 
-        if (command == "shutdown"){
-
-            // The shutdown command is followed by the time set in the following format:
-            // shutdown hh mm ss ms
-
-            string s_hrs;
-            string s_mins;
-            string s_secs;
-            string s_msecs;
-
-            // advance to the next position of recv_msg (after space)
-            pos ++;
-
-            cout << "TEST: " << recv_msg[pos] << endl;
-
-            // extract the hours number from recv_msg
-            while(recv_msg[pos] != ' '){
-                s_hrs += recv_msg[pos];
-                pos ++;
-            }
-
-            cout << "s_hrs: " << s_hrs << endl;
-
-            // advance to the next position of recv_msg (after space)
-            pos ++;
-
-            // extract the mins number from recv_msg
-            while(recv_msg[pos] != ' '){
-                s_mins += recv_msg[pos];
-                pos ++;
-            }
-
-            cout << "s_mins: " << s_mins << endl;
-
-            // advance to the next position of recv_msg (after space)
-            pos ++;
-
-            // extract the secs number from recv_msg
-            while(recv_msg[pos] != ' '){
-                s_secs += recv_msg[pos];
-                pos ++;
-            }
-
-            cout << "s_secs: " << s_secs << endl;
-
-            // advance to the next position of recv_msg (after space)
-            pos ++;
-
-            // extract the msecs number from recv_msg
-            while(recv_msg[pos] != ' ' && recv_msg[pos] != '\0'){
-                s_msecs += recv_msg[pos];
-                pos ++;
-            }
-
-            cout << "s_msecs: " << s_msecs << endl;
-
-            cout << "Time data extracted: " << stoi(s_hrs) << stoi(s_mins) << stoi(s_secs) << stoi(s_msecs) << endl;
-
-            // call execute_sleep_timer() method
-            this->execute_sleep_timer(TimeObject((unsigned int)stoi(s_hrs), (unsigned int)stoi(s_mins),
-                                                 (unsigned int)stoi(s_secs), (unsigned int)stoi(s_msecs)));
+        MsgAnalysisThread(char *recv_buf) {
+            recv_msg = recv_buf;
+            msg_analysis_thread = thread(process_received_message, this, recv_msg);
         }
-    }
 
-    int sockInit() {
-        #ifdef _WIN32
-            WSADATA wsa_data;
-            return WSAStartup(MAKEWORD(1,1), &wsa_data);
-        #else
-            return 0;
-        #endif
-    }
+//        void set_msg(char *recv_buf) {
+//            // sets the msg that will be analyzed by the thread.
+//            // MUST be called before start_thread()
+//            recv_msg = recv_buf;
+//        }
+//
+//        void start_thread() {
+//            // starts the thread
+//            msg_analysis_thread = thread(process_received_message, this, recv_msg);
+//        }
 
-    /* Note: For POSIX, typedef SOCKET as an int. */
+    };
 
-    int sockClose(SOCKET sock) {
-
-        int status = 0;
-
-        #ifdef _WIN32
-            status = shutdown(sock, SD_BOTH);
-            if (status == 0) {
-                status = closesocket(sock);
-            }
-        #else
-            status = shutdown(sock, SHUT_RDWR);
-            if (status == 0) {
-                status = close(sock);
-            }
-        #endif
-
-            return status;
-
-    }
-
-    int sockQuit() {
-        #ifdef _WIN32
-            return WSACleanup();
-        #else
-            return 0;
-        #endif
-    }
-
-
-    void remote_server() {
+    class RemoteServer {
+    private:
         // sets up a server used to listen for and accept commands from remote clients
 
         SOCKET s , new_socket;
@@ -197,74 +185,125 @@ private:
         int recv_size;
         char recv_buf[DEFAULT_BUFLEN];
         int recv_buf_len = DEFAULT_BUFLEN;
+        vector<MsgAnalysisThread> msg_analysis_threads;
 
-        printf("\nInitialising socket...");
-        if (sockInit() != 0) {
-            printf("Socket initialization failed.");
+        int sockInit() {
+            #ifdef _WIN32
+                WSADATA wsa_data;
+                return WSAStartup(MAKEWORD(1,1), &wsa_data);
+            #else
+                return 0;
+            #endif
         }
-        printf("Socket initialised!\n");
 
-        //Create a socket
-        if((s = socket(AF_INET , SOCK_STREAM , 0 )) == 0) {
-            // 0 means INVALID_SOCKET in WinSock
-            printf("Error. Could not create socket.");
+        /* Note: For POSIX, typedef SOCKET as an int. */
+
+        int sockClose(SOCKET sock) {
+
+            int status = 0;
+
+            #ifdef _WIN32
+                status = shutdown(sock, SD_BOTH);
+                if (status == 0) {
+                    status = closesocket(sock);
+                }
+            #else
+                status = shutdown(sock, SHUT_RDWR);
+                if (status == 0) {
+                    status = close(sock);
+                }
+            #endif
+
+            return status;
+
         }
-        printf("Socket created.\n");
 
-        //Prepare the sockaddr_in structure
-        server.sin_family = AF_INET;
-        server.sin_addr.s_addr = INADDR_ANY;
-        server.sin_port = htons(PORT);
-
-        //Bind
-        if( bind(s ,(struct sockaddr *)&server , sizeof(server)) == -1) {
-            printf("Socket bind failed.");
-            exit(EXIT_FAILURE);
+        int sockQuit() {
+            #ifdef _WIN32
+                return WSACleanup();
+            #else
+                return 0;
+            #endif
         }
-        puts("Socket bind done");
 
-        //Listen to incoming connections
-        listen(s , 3);
-
-        //Accept an incoming connection
-        puts("Waiting for incoming connections...");
-
-        c = sizeof(struct sockaddr_in);
-
-        while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != 0 ) {
-
-            // 0 means INVALID_SOCKET in WinSock
-
-            puts("Connection accepted");
-
-            // Receive the client message
-            if((recv_size = recv(new_socket, recv_buf, recv_buf_len, 0)) == -1) {
-                // -1 means SOCKET_ERROR in WinSock
-                puts("Receive failed");
+        void run() {
+            printf("\nInitialising socket...");
+            if (sockInit() != 0) {
+                printf("Socket initialization failed.");
             }
-            puts("Reply received!\n");
+            printf("Socket initialised!\n");
 
-            //Add a NULL terminating character to make it a proper string before printing
-            recv_buf[recv_size] = '\0';
-            puts(recv_buf);
+            //Create a socket
+            if((s = socket(AF_INET , SOCK_STREAM , 0 )) == 0) {
+                // 0 means INVALID_SOCKET in WinSock
+                printf("Error. Could not create socket.");
+            }
+            printf("Socket created.\n");
 
-            // Process the received message to determine the client's given command
-            //this->process_received_message(recv_buf);
-            std::thread t1(&App::process_received_message, this, recv_buf);
+            //Prepare the sockaddr_in structure
+            server.sin_family = AF_INET;
+            server.sin_addr.s_addr = INADDR_ANY;
+            server.sin_port = htons(PORT);
 
-            //Reply to the client
-            message = "Hello Client , I have received your connection. But I have to go now, bye\n";
-            send(new_socket , message , strlen(message) , 0);
+            //Bind
+            if( bind(s ,(struct sockaddr *)&server , sizeof(server)) == -1) {
+                printf("Socket bind failed.");
+                exit(EXIT_FAILURE);
+            }
+            puts("Socket bind done");
+
+            //Listen to incoming connections
+            listen(s , 3);
+
+            //Accept an incoming connection
+            puts("Waiting for incoming connections...");
+
+            c = sizeof(struct sockaddr_in);
+
+            while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != 0 ) {
+
+                // 0 means INVALID_SOCKET in WinSock
+
+                puts("Connection accepted");
+
+                // Receive the client message
+                if((recv_size = recv(new_socket, recv_buf, recv_buf_len, 0)) == -1) {
+                    // -1 means SOCKET_ERROR in WinSock
+                    puts("Receive failed");
+                }
+                puts("Reply received!\n");
+
+                //Add a NULL terminating character to make it a proper string before printing
+                recv_buf[recv_size] = '\0';
+                puts(recv_buf);
+
+                // Process the received message to determine the client's given command
+                msg_analysis_threads.emplace_back(MsgAnalysisThread(recv_buf));
+                //Reply to the client
+                message = "Hello Client , I have received your connection. But I have to go now, bye\n";
+                send(new_socket , message , strlen(message) , 0);
+                cout << "============================================-1";
+            }
+
+            cout << "============================================-2";
+
+            if (new_socket == 0) {
+                // 0 means INVALID_SOCKET in WinSock
+                printf("accept failed!");
+            }
+
+            sockClose(s);
+            sockQuit();
+
+
         }
 
-        if (new_socket == 0) {
-            // 0 means INVALID_SOCKET in WinSock
-            printf("accept failed!");
+    public:
+        RemoteServer() {
+            run();
         }
+    };
 
-        sockClose(s);
-        sockQuit();
-    }
 
     void execute_shutdown_command(){
         // -s is used for shutdown, -f is used to force shutdown,
@@ -295,8 +334,7 @@ public:
     }
 
     void run(){
-        //this->execute_sleep_timer(TimeObject(0,0,5,0));
-        this->remote_server();
+        RemoteServer server = RemoteServer();
     }
 
 };
