@@ -1,7 +1,8 @@
 #include <iostream>
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
+#include "nlohmann/json.hpp"
+//#include "rapidjson/document.h"
+//#include "rapidjson/writer.h"
+//#include "rapidjson/stringbuffer.h"
 
 #ifdef _WIN32
 
@@ -31,6 +32,7 @@ typedef int SOCKET;
 
 using namespace std;
 
+/////////////////////////////////////////////////////////////////////////////////////////
 
 class TimeObject {
     // class used to save time data, such as hours, minutes, seconds, milliseconds
@@ -65,6 +67,7 @@ public:
     }
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
 
 class App {
 
@@ -171,6 +174,8 @@ private:
 //        }
 
     };
+
+/////////////////////////////////////////////////////////////////////////////////////////
 
     class RemoteServer {
     private:
@@ -305,27 +310,58 @@ private:
     };
 
 
-    void execute_shutdown_command(){
-        // -s is used for shutdown, -f is used to force shutdown,
-        // preventing the computer from getting stuck from background applications.
-        //system("shutdown -s -f");
-        cout << "Diag: Shutdown would be executed here!";
-    }
 
-    void execute_sleep_timer(TimeObject time_data){
-        // executes the sleep timer that puts the application in a hold
-        // for a requested amount of time.
 
-        #ifdef _WIN32
-            cout << "get_msecs: " << time_data.get_msecs() << "\n";
-            Sleep(time_data.get_msecs());
-        #else
-            // usleep takes sleep time in us (1 millionth of a second)
-            usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
-        #endif
+    class CommandExec {
 
-        this->execute_shutdown_command();
-    }
+        using json = nlohmann::json;
+
+    public:
+
+        json static get_identification_info() {
+            string id;
+            string ip;
+            string status;
+            json info;
+
+            //get computer name
+            id = "test_computer_name";
+
+            //get computer ip
+            ip = "192.168.1.234";
+
+            //get computer readiness status
+            status = "Ready";
+
+            info["id"] = id;
+            info["ip"] = ip;
+            info["status"] = status;
+
+            return info;
+
+        }
+
+        void execute_shutdown_command(TimeObject time_data){
+            // executes the sleep timer that puts the application in a hold
+            // for a requested amount of time.
+
+            #ifdef _WIN32
+                cout << "get_msecs: " << time_data.get_msecs() << "\n";
+                Sleep(time_data.get_msecs());
+            #else
+                // usleep takes sleep time in us (1 millionth of a second)
+                usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+            #endif
+
+            // -s is used for shutdown, -f is used to force shutdown,
+            // preventing the computer from getting stuck from background applications.
+            //system("shutdown -s -f");
+            cout << "Diag: Shutdown would be executed here!";
+        }
+
+
+
+    };
 
 public:
 
@@ -339,7 +375,7 @@ public:
 
 };
 
-
+/////////////////////////////////////////////////////////////////////////////////////////
 
 int main() {
 
