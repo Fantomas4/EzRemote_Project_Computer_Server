@@ -185,12 +185,32 @@ private:
         struct sockaddr_in server , client;
         //int c;
         socklen_t c;
-        char *message;
+//        char *message;
+        string final_message;
+        nlohmann::json json_message;
         unsigned short PORT = 7789;
         int recv_size;
         char recv_buf[DEFAULT_BUFLEN];
         int recv_buf_len = DEFAULT_BUFLEN;
         vector<MsgAnalysisThread> msg_analysis_threads;
+
+        nlohmann::json generate_json_msg(string msg_type, string msg_content, map<string, string> data) {
+            // msg_type is "request" or "response
+            // msg_content describes the data content of the message
+            // for example, identification_info
+
+            nlohmann::json json_msg;
+
+            json_msg = {
+                    {"msg_type", msg_type},
+                    {"msg_content", msg_content},
+                    {"msg_data", data}
+            };
+
+
+
+            return json_msg;
+        }
 
         int sockInit() {
             #ifdef _WIN32
@@ -284,9 +304,23 @@ private:
 
                 // Process the received message to determine the client's given command
                 msg_analysis_threads.emplace_back(MsgAnalysisThread(recv_buf));
+
+
+
                 //Reply to the client
-                message = "Hello Client , I have received your connection. But I have to go now, bye\n";
-                send(new_socket , message , strlen(message) , 0);
+//                message = "Hello Client , I have received your connection. But I have to go now, bye\n";
+
+                json_message = generate_json_msg("response", "id_info", CommandExec().get_identification_info());
+                final_message = json_message.dump(4);
+
+                cout << json_message.dump(4) << "\n";
+
+                //send(new_socket , (const char *)&message , sizeof(message) , 0);
+
+
+                // c_str() returns the contents of the string as a const char*
+                // and the pointer it returns is valid as long as the given string object exists.
+                send(new_socket , final_message.c_str(), final_message.size() , 0);
                 cout << "============================================-1";
             }
 
@@ -314,15 +348,13 @@ private:
 
     class CommandExec {
 
-        using json = nlohmann::json;
-
     public:
 
-        json static get_identification_info() {
+        map<string, string> static get_identification_info() {
             string id;
             string ip;
             string status;
-            json info;
+            map<string, string> info;
 
             //get computer name
             id = "test_computer_name";
@@ -341,7 +373,7 @@ private:
 
         }
 
-        void execute_shutdown_command(TimeObject time_data){
+        void static execute_shutdown_command(TimeObject time_data){
             // executes the sleep timer that puts the application in a hold
             // for a requested amount of time.
 
