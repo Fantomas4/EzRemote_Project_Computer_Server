@@ -73,88 +73,62 @@ class App {
 
 private:
 
+    // states whether the server is currently connected to a client.
+    bool static in_connection = false;
+    // holds the ip of the client that the application is currently bonded to.
+    string static ip_bond;
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    // The messages between the server and the client are transmitted in JSON form, using the
+    // following format:
+    //
+    // - msg_type: can either be "request" or "response"
+    // - msg_content: describes the purpose of the message, the type of data it holds
+    // - msg_data: the actual data the message contains, in JSON form.
     class MsgAnalysisThread {
 
     private:
+
         char *recv_msg;
-        //RemoteServer *appPtr;
         std::thread msg_analysis_thread;
 
         void process_received_message(char *recv_msg){
 
-            int pos = 0;
-            string command;
+            using namespace nlohmann;
 
+            // convert recv_msg to string
+            string s_msg = recv_msg;
 
-            while(recv_msg[pos] != ' '){
-                command += recv_msg[pos];
-                pos ++;
+            json json_msg = json::parse(s_msg);
+
+            string msg_type = json_msg["msg_type"];
+            string msg_content = json_msg["msg_content"];
+            json msg_data = json_msg["msg_data"];
+
+            if (msg_type == "request"){
+
+                if (msg_content == "make_connection") {
+
+                    if(!in_connection) {
+                        // checks whether the application is already connected to a client
+                        in_connection = true;
+                        ip_bond = msg_data["ip"];
+
+                    }
+
+                } else if (msg_content == "identify") {
+
+                }
+
+            } else if (msg_type == "response") {
+                // Under Construction
             }
-            cout << "The command is: " << command << endl;
 
-            if (command == "shutdown"){
 
-                // The shutdown command is followed by the time set in the following format:
-                // shutdown hh mm ss ms
 
-                string s_hrs;
-                string s_mins;
-                string s_secs;
-                string s_msecs;
 
-                // advance to the next position of recv_msg (after space)
-                pos ++;
-
-                cout << "TEST: " << recv_msg[pos] << endl;
-
-                // extract the hours number from recv_msg
-                while(recv_msg[pos] != ' '){
-                    s_hrs += recv_msg[pos];
-                    pos ++;
-                }
-
-                cout << "s_hrs: " << s_hrs << endl;
-
-                // advance to the next position of recv_msg (after space)
-                pos ++;
-
-                // extract the mins number from recv_msg
-                while(recv_msg[pos] != ' '){
-                    s_mins += recv_msg[pos];
-                    pos ++;
-                }
-
-                cout << "s_mins: " << s_mins << endl;
-
-                // advance to the next position of recv_msg (after space)
-                pos ++;
-
-                // extract the secs number from recv_msg
-                while(recv_msg[pos] != ' '){
-                    s_secs += recv_msg[pos];
-                    pos ++;
-                }
-
-                cout << "s_secs: " << s_secs << endl;
-
-                // advance to the next position of recv_msg (after space)
-                pos ++;
-
-                // extract the msecs number from recv_msg
-                while(recv_msg[pos] != ' ' && recv_msg[pos] != '\0'){
-                    s_msecs += recv_msg[pos];
-                    pos ++;
-                }
-
-                cout << "s_msecs: " << s_msecs << endl;
-
-                cout << "Time data extracted: " << stoi(s_hrs) << stoi(s_mins) << stoi(s_secs) << stoi(s_msecs) << endl;
-
-                // call execute_sleep_timer() method
-//                this->execute_sleep_timer(TimeObject((unsigned int)stoi(s_hrs), (unsigned int)stoi(s_mins),
-//                                                     (unsigned int)stoi(s_secs), (unsigned int)stoi(s_msecs)));
-            }
         }
+
     public:
 
         MsgAnalysisThread(char *recv_buf) {
@@ -175,7 +149,7 @@ private:
 
     };
 
-/////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
 
     class RemoteServer {
     private:
@@ -345,7 +319,7 @@ private:
 
 
 
-
+    /////////////////////////////////////////////////////////////////////////////////////
     class CommandExec {
 
     public:
@@ -394,6 +368,8 @@ private:
 
 
     };
+
+    /////////////////////////////////////////////////////////////////////////////////////
 
 public:
 
