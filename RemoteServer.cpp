@@ -90,33 +90,21 @@ void RemoteServer::listen_thread() {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
         }
-        puts("Reply received!\n");
+        puts("Reply received1!\n");
+        cout << "recv_size is: " << recv_size << "\n\n";
 
         //Add a NULL terminating character to make it a proper string before printing
-        recv_buf[recv_size] = '\0';
-        puts(recv_buf);
+        //recv_buf[recv_size] = '\0';
+        //puts(recv_buf);
+
+        cout << "DIAG: RECV_BUF IS: " << recv_buf;
+
 
         // Create a thread to process the received message and determine the client's given command
         // The thread is created by the MessageAnalysis Object, during its construction.
+        cout << "======================================== Ftiaxnw thread";
         msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, recv_buf));
 
-
-
-        //Reply to the client
-//                message = "Hello Client , I have received your connection. But I have to go now, bye\n";
-
-//                json_message = generate_json_msg("response", "id_info", CommandExec().get_identification_info());
-//                final_message = json_message.dump(4);
-//
-//                cout << json_message.dump(4) << "\n";
-
-        //send(new_socket , (const char *)&message , sizeof(message) , 0);
-
-//
-//                // c_str() returns the contents of the string as a const char*
-//                // and the pointer it returns is valid as long as the given string object exists.
-//                send(new_socket , final_message.c_str(), final_message.size() , 0);
-//                cout << "============================================-1";
     }
 
     cout << "============================================-2";
@@ -136,7 +124,7 @@ void RemoteServer::run() {
 
 }
 
-void RemoteServer::server_reply() {
+void RemoteServer::server_reply(nlohmann::json json_msg) {
 
     using namespace nlohmann;
 
@@ -146,9 +134,12 @@ void RemoteServer::server_reply() {
     // ATTENTION!
     // c_str() returns the contents of the string as a const char*
     // and the pointer it returns is valid as long as the given string object exists.
-    const char *outbound_msg = outbound_json_buffer.dump(4).c_str();
+    const char *outbound_msg = json_msg.dump(4).c_str();
 
-    send(new_socket , outbound_msg, sizeof(outbound_msg) , 0);
+    send(new_socket , outbound_msg, strlen(outbound_msg) , 0);
+
+    cout << "\n\n";
+    cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
 
 RemoteServer::RemoteServer(App *app_obj) {

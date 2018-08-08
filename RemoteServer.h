@@ -34,7 +34,8 @@ typedef int SOCKET;
 
 #endif
 
-#define DEFAULT_BUFLEN 512
+//#define DEFAULT_BUFLEN 512
+#define DEFAULT_BUFLEN 10000
 
 using namespace std;
 
@@ -60,9 +61,6 @@ private:
     int recv_buf_len = DEFAULT_BUFLEN;
     vector<MessageAnalysis> msg_analysis_threads;
 
-    // holds the json message that is going to be transmitted to the client
-    nlohmann::json outbound_json_buffer;
-
     int sockInit();
 
     int sockClose(SOCKET sock);
@@ -76,7 +74,7 @@ private:
 public:
     RemoteServer(App *app_obj);
 
-    void server_reply();
+    void server_reply(nlohmann::json json_msg);
 
 
 };
