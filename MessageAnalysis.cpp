@@ -3,6 +3,7 @@
 //
 
 #include "MessageAnalysis.h"
+#include "CommandExec.h"
 
 void MessageAnalysis::process_received_message(){
 
@@ -56,6 +57,20 @@ void MessageAnalysis::process_received_message(){
 
         } else if (msg_content == "identify") {
 
+        } else if (msg_content == "execute_command") {
+            string command_type = msg_data["type"];
+
+            if (command_type == "shutdown_system") {
+                unsigned int hours, mins, secs, msecs;
+
+                hours = msg_data["hours"];
+                mins = msg_data["mins"];
+                secs = msg_data["secs"];
+                msecs = msg_data["msecs"];
+
+                // call of static method from class CommandExec.
+                CommandExec::execute_shutdown_command(TimeObject(hours, mins, secs, msecs));
+            }
         }
 
     } else if (msg_type == "response") {

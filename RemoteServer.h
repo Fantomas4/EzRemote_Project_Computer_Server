@@ -35,7 +35,7 @@ typedef int SOCKET;
 #endif
 
 //#define DEFAULT_BUFLEN 512
-#define DEFAULT_BUFLEN 10000
+#define DEFAULT_BUFLEN 1000
 
 using namespace std;
 
@@ -55,9 +55,9 @@ private:
     socklen_t c;
     string final_message;
     nlohmann::json json_message;
-    unsigned short PORT = 7789;
+    unsigned short PORT = 3456;
     int recv_size;
-    char recv_buf[DEFAULT_BUFLEN];
+    char recv_buf[DEFAULT_BUFLEN] = {0};   // Initialises all elements to null.
     int recv_buf_len = DEFAULT_BUFLEN;
     vector<MessageAnalysis> msg_analysis_threads;
 
@@ -66,6 +66,8 @@ private:
     int sockClose(SOCKET sock);
 
     int sockQuit();
+
+    int Recv(char* recv_buf, int recv_buf_size);
 
     void listen_thread();
 

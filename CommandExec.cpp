@@ -38,13 +38,15 @@ void CommandExec::execute_shutdown_command(TimeObject time_data){
 #ifdef _WIN32
     cout << "get_msecs: " << time_data.get_msecs() << "\n";
     Sleep(time_data.get_msecs());
-#else
-    // usleep takes sleep time in us (1 millionth of a second)
-    usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
-#endif
 
     // -s is used for shutdown, -f is used to force shutdown,
     // preventing the computer from getting stuck from background applications.
     //system("shutdown -s -f");
     cout << "Diag: Shutdown would be executed here!";
+#else
+    // usleep takes sleep time in us (1 millionth of a second)
+    usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+#endif
+
+
 }
