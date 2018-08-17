@@ -87,7 +87,11 @@ MessageAnalysis::MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, char *r
     this->server_ptr = server_ptr;
     recv_msg = recv_buf;
 
-    this->msg_analysis_thread = thread(process_received_message, this);
+    // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
+    // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
+    // To call a member function, the first argument to std::bind must be a pointer, reference, or
+    // shared pointer to an object of the appropriate type
+    this->msg_analysis_thread = thread(&MessageAnalysis::process_received_message, this);
 
 
 }

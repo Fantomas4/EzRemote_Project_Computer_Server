@@ -4,7 +4,14 @@
 
 #include "CommandExec.h"
 #include <iostream>
-#include <synchapi.h>
+
+
+#ifdef __WIN32
+    #include <synchapi.h>
+#else
+    #include <unistd.h>
+#endif
+
 
 using namespace std;
 
