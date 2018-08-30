@@ -22,7 +22,7 @@ void MessageAnalysis::process_received_message(){
 
     if (msg_type == "request"){
 
-        cout << "VRIKA REQUEST ---------------------------------";
+        cout << "\n\nVRIKA REQUEST ---------------------------------";
 
         if (msg_content == "make_connection") {
             cout << "VRIKA make_connection ---------------------------------";
@@ -30,7 +30,10 @@ void MessageAnalysis::process_received_message(){
             if(!app_ptr->in_connection) {
                 // server accepts the connection
                 app_ptr->in_connection = true;
+                cout<<"\nEFTASA 000" << endl;
                 app_ptr->ip_bond = msg_data["ip"];
+
+                cout<<"\nEFTASA 111" << endl;
 
                 // prepare the response to the client
                 map<string, string> data;
@@ -38,6 +41,7 @@ void MessageAnalysis::process_received_message(){
 
                 nlohmann::json json_msg = app_ptr->generate_json_msg("response", "connection_request_status", data);
 
+                cout << "Message Analysis is preparing to send reply to client..." <<endl;
                 // send the response to the client
                 server_ptr->server_reply(json_msg);
 
@@ -58,18 +62,35 @@ void MessageAnalysis::process_received_message(){
         } else if (msg_content == "identify") {
 
         } else if (msg_content == "execute_command") {
+            cout << "\n\nVRIKA execute_command ---------------------------------";
             string command_type = msg_data["type"];
 
             if (command_type == "shutdown_system") {
-                unsigned int hours, mins, secs, msecs;
 
-                hours = msg_data["hours"];
-                mins = msg_data["mins"];
-                secs = msg_data["secs"];
-                msecs = msg_data["msecs"];
+                // extract string data from the json message
+                string s_hrs = msg_data["hours"];
+                string s_mns = msg_data["mins"];
+                string s_secs = msg_data["secs"];
+                string s_msecs = msg_data["msecs"];
+
+                // stoul converts the string from the temp variables above to the wanted unsigned integer type.
+                unsigned int hours = std::stoul(s_hrs);
+                unsigned int mins = std::stoul(s_mns);
+                unsigned int secs = std::stoul(s_secs);
+                unsigned int msecs = std::stoul(s_msecs);
 
                 // call of static method from class CommandExec.
                 CommandExec::execute_shutdown_command(TimeObject(hours, mins, secs, msecs));
+
+
+                // prepare the response to the client
+                map<string, string> data;
+                data["command_request_status"] = "accepted";
+
+                nlohmann::json json_msg = app_ptr->generate_json_msg("response", "command_request_status", data);
+
+                // send the response to the client
+                server_ptr->server_reply(json_msg);
             }
         }
 

@@ -218,9 +218,16 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
     // and the pointer it returns is valid as long as the given string object exists.
     const char *outbound_msg = json_msg.dump(4).c_str();
 
+    cout << "outbound_msg is: " << endl;
+
+    for (int i=0; i<strlen(outbound_msg); i++) {
+        cout << outbound_msg[i];
+    }
+
     send(new_socket , outbound_msg, strlen(outbound_msg) , 0);
 
     cout << "\n\n";
+    cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
     cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
 

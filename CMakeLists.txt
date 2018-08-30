@@ -4,7 +4,7 @@ project(EzRemote_Project)
 set(CMAKE_CXX_STANDARD 11)
 
 option (USE_WINDOWS_LIB
-        "Use the libraries needed by Windows" OFF)
+        "Use the libraries needed by Windows" ON)
 
 if (USE_WINDOWS_LIB)
     link_libraries(ws2_32 wsock32)
