@@ -216,8 +216,12 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
     // ATTENTION!
     // c_str() returns the contents of the string as a const char*
     // and the pointer it returns is valid as long as the given string object exists.
-    const char *outbound_msg = json_msg.dump(4).c_str();
 
+    std::string temp_s = json_msg.dump(4);
+
+    const char *outbound_msg = temp_s.c_str();
+
+    cout << "***********************strlen(outbound_msg): " << strlen(outbound_msg) << endl;
     cout << "outbound_msg is: " << endl;
 
     for (int i=0; i<strlen(outbound_msg); i++) {
@@ -226,7 +230,12 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
 
     send(new_socket , outbound_msg, strlen(outbound_msg) , 0);
 
+//    send(new_socket, json_msg.dump(4).c_str(), strlen(json_msg.dump(4).c_str()), 0);
+
     cout << "\n\n";
+
+//    cout << "Sending a message with size: " << strlen(json_msg.dump(4).c_str()) << endl;
+
     cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
     cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
