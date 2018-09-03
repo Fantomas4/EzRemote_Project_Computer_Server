@@ -79,10 +79,11 @@ void MessageAnalysis::process_received_message(){
                 unsigned int secs = std::stoul(s_secs);
                 unsigned int msecs = std::stoul(s_msecs);
 
-                // call of static method from class CommandExec.
-                CommandExec::execute_shutdown_command(TimeObject(hours, mins, secs, msecs));
-
-
+                // call static method from class CommandExec
+                // and execute it in a new, detached thread
+                std::thread shutdown_command_thread = thread(&CommandExec::execute_shutdown_command, TimeObject(hours, mins, secs, msecs));
+                shutdown_command_thread.detach();
+                
                 // prepare the response to the client
                 map<string, string> data;
                 data["command_request_status"] = "accepted";

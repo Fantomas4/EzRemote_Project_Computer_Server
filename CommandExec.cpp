@@ -41,7 +41,7 @@ map<string, string> CommandExec::get_identification_info() {
 void CommandExec::execute_shutdown_command(TimeObject time_data){
     // executes the sleep timer that puts the application in a hold
     // for a requested amount of time.
-
+    cout << "\n\n\ninside shutdown thread ^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << endl << endl << endl;
 #ifdef _WIN32
     cout << "get_msecs: " << time_data.get_msecs() << "\n";
     Sleep(time_data.get_msecs());
@@ -49,7 +49,7 @@ void CommandExec::execute_shutdown_command(TimeObject time_data){
     // -s is used for shutdown, -f is used to force shutdown,
     // preventing the computer from getting stuck from background applications.
     //system("shutdown -s -f");
-    cout << "Diag: Shutdown would be executed here!";
+    cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
 #else
     // usleep takes sleep time in us (1 millionth of a second)
     usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
