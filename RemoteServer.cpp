@@ -185,7 +185,7 @@ void RemoteServer::listen_thread() {
         // Create a thread to process the received message and determine the client's given command
         // The thread is created by the MessageAnalysis Object, during its construction.
         cout << "======================================== Ftiaxnw thread";
-        msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, recv_buf));
+        msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, command_exec_ptr, recv_buf));
 
     }
 
@@ -240,7 +240,8 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
     cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
 
-RemoteServer::RemoteServer(App *app_obj) {
+RemoteServer::RemoteServer(App *app_obj, CommandExec* command_exec_obj) {
     this->app_ptr = app_obj;
+    this->command_exec_ptr = command_exec_obj;
     run();
 }

@@ -7,6 +7,7 @@
 
 #include "App.h"
 #include "RemoteServer.h"
+#include "CommandExec.h"
 #include <thread>
 
 // forward declaration
@@ -18,13 +19,15 @@ class MessageAnalysis {
 private:
     App *app_ptr;
     RemoteServer *server_ptr;
+    CommandExec *command_exec_ptr;
     char *recv_msg;
     std::thread msg_analysis_thread;
+
 
     void process_received_message();
 
 public:
-    MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, char *recv_buf);
+    MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, CommandExec *command_exec_ptr, char *recv_buf);
 
 };
 

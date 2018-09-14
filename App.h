@@ -8,6 +8,7 @@
 #include <iostream>
 #include "nlohmann/json.hpp"
 #include "RemoteServer.h"
+#include "CommandExec.h"
 
 using namespace std;
 
@@ -18,6 +19,7 @@ class App {
 
 private:
     RemoteServer *server;
+    CommandExec command_exec;
 
 public:
     // states whether the server is currently connected to a client.

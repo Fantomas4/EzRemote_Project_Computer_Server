@@ -6,6 +6,7 @@
 #define EZREMOTE_PROJECT_REMOTESERVER_H
 
 #include "App.h"
+#include "CommandExec.h"
 #include "MessageAnalysis.h"
 #include "nlohmann/json.hpp"
 #include <iostream>
@@ -49,6 +50,7 @@ private:
     // sets up a server used to listen for and accept commands from remote clients
 
     App *app_ptr;
+    CommandExec *command_exec_ptr;
 
     SOCKET s , new_socket;
     struct sockaddr_in server , client;
@@ -74,7 +76,7 @@ private:
     void run();
 
 public:
-    RemoteServer(App *app_obj);
+    RemoteServer(App *app_obj, CommandExec *command_exec_obj);
 
     void server_reply(nlohmann::json json_msg);
 

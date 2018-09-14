@@ -10,7 +10,9 @@ using namespace std;
 
 App::App() {
     in_connection = false;
-    server = new RemoteServer(this);
+    command_exec = CommandExec();
+    server = new RemoteServer(this, &command_exec);
+
 }
 
 nlohmann::json App::generate_json_msg(string msg_type, string msg_content, map<string, string> data) {
