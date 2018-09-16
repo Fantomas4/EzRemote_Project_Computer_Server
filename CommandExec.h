@@ -9,6 +9,7 @@
 #include <thread>
 #include <iostream>
 #include <atomic>
+#include <mutex>
 #include "TimeObject.h"
 
 using namespace std;
@@ -20,8 +21,10 @@ private:
         // flag used from the shutdown_timer function when running in its thread
         // to determine whether a cancel command was issued for the timer currently in use.
 //        std::atomic_bool terminate_timer{false};
-//        bool terminate_timer = false;
-        std::atomic<bool> terminate_timer;
+        bool terminate_timer_flag = false;
+        std::mutex *mu_terminate_timer_flag;
+
+//        std::atomic<bool> terminate_timer;
 
 
         void shutdown_timer(TimeObject time_data);

@@ -16,8 +16,14 @@
 using namespace std;
 
 CommandExec::CommandExec() {
-    std::atomic_init(&terminate_timer, false);
-//    terminate_timer = false;
+//    std::atomic_init(&terminate_timer, false);
+
+    // use unique lock for the asynchronous operation of changing the
+    // value for the terminate_timer_flag
+    mu_terminate_timer_flag = new std::mutex();
+    std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
+    terminate_timer_flag = false;
+    locker1.unlock();
 }
 
 map<string, string> CommandExec::get_identification_info() {
@@ -50,7 +56,9 @@ void CommandExec::execute_shutdown_timer_thread(TimeObject time_data) {
 }
 
 void CommandExec::terminate_shutdown_timer_thread() {
-    this->terminate_timer = true;
+    std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
+    terminate_timer_flag = true;
+    locker1.unlock();
 }
 
 void CommandExec::shutdown_timer(TimeObject time_data) {
@@ -66,7 +74,7 @@ void CommandExec::shutdown_timer(TimeObject time_data) {
 
         long long int elapsed_ms = elapsed.count();
 
-        if (this->terminate_timer) {
+        if (terminate_timer_flag) {
             cout << "\n\n" << "&&&&&&&&&&&&&&&&&&&&&& AKIROSI TIMER" << endl;
             break;
         } else if (elapsed_ms >= t_target) {
