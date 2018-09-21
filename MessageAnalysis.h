@@ -5,14 +5,17 @@
 #ifndef EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 #define EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 
-#include "App.h"
-#include "RemoteServer.h"
-#include "CommandExec.h"
+//#include "App.h"
+//#include "RemoteServer.h"
+//#include "CommandExec.h"
+
 #include <thread>
+
 
 // forward declaration
 class App;
 class RemoteServer;
+class CommandExec;
 
 class MessageAnalysis {
 

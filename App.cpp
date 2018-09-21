@@ -6,12 +6,16 @@
 #include <iostream>
 #include "nlohmann/json.hpp"
 
+#include "RemoteServer.h"
+#include "CommandExec.h"
+
+
 using namespace std;
 
 App::App() {
     in_connection = false;
-    command_exec = CommandExec();
-    server = new RemoteServer(this, &command_exec);
+    command_exec = new CommandExec();
+    server = new RemoteServer(this, command_exec);
 
 }
 

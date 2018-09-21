@@ -2,9 +2,12 @@
 // Created by Sierra Kilo on 07-Aug-18.
 //
 
-#include <zconf.h>
+#include "App.h"
 #include "MessageAnalysis.h"
+#include "RemoteServer.h"
 #include "CommandExec.h"
+
+#include "nlohmann/json.hpp"
 
 MessageAnalysis::MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, CommandExec *command_exec_ptr, char *recv_buf) {
     this->app_ptr = app_ptr;

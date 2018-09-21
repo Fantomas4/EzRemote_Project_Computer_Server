@@ -6,7 +6,15 @@
 #include <thread>
 #include <mutex>
 
+#include "MessageAnalysis.h"
+
 std::mutex recv_buffer_mutex;
+
+RemoteServer::RemoteServer(App *app_obj, CommandExec* command_exec_obj) {
+    this->app_ptr = app_obj;
+    this->command_exec_ptr = command_exec_obj;
+    run();
+}
 
 int RemoteServer::sockInit() {
 #ifdef _WIN32
@@ -240,8 +248,3 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
     cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
 
-RemoteServer::RemoteServer(App *app_obj, CommandExec* command_exec_obj) {
-    this->app_ptr = app_obj;
-    this->command_exec_ptr = command_exec_obj;
-    run();
-}

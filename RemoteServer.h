@@ -5,11 +5,14 @@
 #ifndef EZREMOTE_PROJECT_REMOTESERVER_H
 #define EZREMOTE_PROJECT_REMOTESERVER_H
 
-#include "App.h"
-#include "CommandExec.h"
-#include "MessageAnalysis.h"
+//#include "App.h"
+//#include "CommandExec.h"
+//#include "MessageAnalysis.h"
 #include "nlohmann/json.hpp"
 #include <iostream>
+
+// forward declaration
+class CommandExec;
 
 #ifdef _WIN32
 

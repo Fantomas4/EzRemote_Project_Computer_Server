@@ -106,7 +106,7 @@ void CommandExec::shutdown_command(){
     cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
 #else
     // usleep takes sleep time in us (1 millionth of a second)
-    usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+//    usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
 #endif
 
 

@@ -7,19 +7,20 @@
 
 #include <iostream>
 #include "nlohmann/json.hpp"
-#include "RemoteServer.h"
-#include "CommandExec.h"
+//#include "RemoteServer.h"
+//#include "CommandExec.h"
 
 using namespace std;
 
 // forward declaration
 class RemoteServer;
+class CommandExec;
 
 class App {
 
 private:
     RemoteServer *server;
-    CommandExec command_exec;
+    CommandExec *command_exec;
 
 public:
     // states whether the server is currently connected to a client.
