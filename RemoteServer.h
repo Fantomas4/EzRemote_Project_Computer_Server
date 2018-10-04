@@ -66,6 +66,8 @@ private:
     int recv_buf_len = DEFAULT_BUFLEN;
     vector<MessageAnalysis> msg_analysis_threads;
 
+    bool terminate_server = false;
+
     int sockInit();
 
     int sockClose(SOCKET sock);
