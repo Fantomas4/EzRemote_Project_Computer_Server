@@ -59,17 +59,6 @@ int RemoteServer::sockQuit() {
 
 int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
 
-//    int total = 0, n = 0;
-//
-//    cout << "initial n is: " << n << "\n\n";
-//
-//    while((n = recv(this->new_socket, buf+total, size-total-1, 0)) > 0) {
-//        cout << "n is: " << "\n\n";
-//        cout << "MPIKA" << "\n\n";
-//        total += n;
-//    }
-
-
     // empty the recv_buf buffer by filling it with 0 (null)
     *recv_buf = {0};
 
@@ -87,14 +76,19 @@ int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
     int n = 0, total_size = 0;
 
     do {
-        cout << "MPIKA" << "\n\n";
+//        cout << "MPIKA" << "\n\n";
 //        n = recv(this->new_socket, buf+total_size, buf_size-total_size-1, 0);
         n = recv(this->new_socket, temp_buf, temp_buf_size, 0);
         total_size += n;
 
-        cout << "n is: " << n << "\n\n";
-        cout << "total_size is: " << total_size << "\n\n";
-        cout << "temp_buf is: " << temp_buf << "\n\n";
+        // *** new addition
+        if (n == 0) {
+            break;
+        }
+
+//        cout << "n is: " << n << "\n\n";
+//        cout << "total_size is: " << total_size << "\n\n";
+//        cout << "temp_buf is: " << temp_buf << "\n\n";
 
         // create a temporary string to store the recv_buf char array as a string.
         s_recv_buf = recv_buf;
@@ -106,7 +100,7 @@ int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
         strcpy(recv_buf, s_recv_buf.c_str());
         recv_buffer_mutex.unlock();
 
-        cout << "strlen(temp_buf) is: " << strlen(temp_buf) << "\n\n";
+//        cout << "strlen(temp_buf) is: " << strlen(temp_buf) << "\n\n";
 
     } while(strlen(temp_buf) == n);
 
@@ -154,45 +148,40 @@ void RemoteServer::listen_thread() {
 
     c = sizeof(struct sockaddr_in);
 
-    while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != 0 ) {
+    // *** WARNING *** accept() should not be used like this when accepting a connection
+    // from an already existing client socket, otherwise the program execution will get
+    // stuck here.
 
-        cout << "****** ACCEPT LOOP *********" << "\n\n";
+    new_socket = accept(s , (struct sockaddr *)&client, &c);
+
+//    while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != 0 ) {
+    while (true) {
+        cout << "****** Listen LOOP *********" << "\n\n";
 
         // 0 means INVALID_SOCKET in WinSock
 
-        puts("Connection accepted");
+//        puts("Connection accepted");
 
-        // Receive the client message
-//        if((recv_size = recv(new_socket, recv_buf, recv_buf_len, 0)) == -1) {
-//            // -1 means SOCKET_ERROR in WinSock
-//            puts("Receive failed");
-//        }
-
-        cout << "\n\nTEST BUFFER BEFORE RECV IS: " << recv_buf << "\n\n";
+//        cout << "\n\nTEST BUFFER BEFORE RECV IS: " << recv_buf << "\n\n";
 
         if((recv_size = Recv(recv_buf, recv_buf_len)) == -1) {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
-//            wchar_t *s = NULL;
-//            FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-//                           NULL, WSAGetLastError(),
-//                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-//                           (LPWSTR)&s, 0, NULL);
-//            fprintf(stderr, "%S\n", s);
-//            LocalFree(s);
         }
 
-        cout << "recv_size is1: " << recv_size << "\n\n";
-        cout << "TEST BUFFER IS1: " << recv_buf << "\n\n";
+//        cout << "recv_size is1: " << recv_size << "\n\n";
+//        cout << "TEST BUFFER IS1: " << recv_buf << "\n\n";
 
 
         //Add a NULL terminating character to make it a proper string before printing
         //recv_buf[recv_size] = '\0';
         //puts(recv_buf);
 
+        cout << "RemoteServer.cpp : recv_buf is: " << recv_buf << endl;
+
         // Create a thread to process the received message and determine the client's given command
         // The thread is created by the MessageAnalysis Object, during its construction.
-        cout << "======================================== Ftiaxnw thread";
+        cout << "================ Ftiaxnw thread gia message analysis ========================" << endl;
         msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, command_exec_ptr, recv_buf));
 
     }
@@ -229,8 +218,8 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
 
     const char *outbound_msg = temp_s.c_str();
 
-    cout << "***********************strlen(outbound_msg): " << strlen(outbound_msg) << endl;
-    cout << "outbound_msg is: " << endl;
+//    cout << "***********************strlen(outbound_msg): " << strlen(outbound_msg) << endl;
+    cout << "server outbound_msg is: " << endl;
 
     for (int i=0; i<strlen(outbound_msg); i++) {
         cout << outbound_msg[i];
@@ -238,13 +227,9 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
 
     send(new_socket , outbound_msg, strlen(outbound_msg) , 0);
 
-//    send(new_socket, json_msg.dump(4).c_str(), strlen(json_msg.dump(4).c_str()), 0);
-
     cout << "\n\n";
 
-//    cout << "Sending a message with size: " << strlen(json_msg.dump(4).c_str()) << endl;
-
-    cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
+//    cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
     cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
 

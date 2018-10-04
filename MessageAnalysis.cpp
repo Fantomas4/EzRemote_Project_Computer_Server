@@ -31,6 +31,8 @@ void MessageAnalysis::process_received_message(){
     // convert recv_msg to string
     string s_msg = recv_msg;
 
+    cout << "\n\ns_msg inside process_received_message() is : " << s_msg << endl;
+
     json json_msg = json::parse(s_msg);
 
     string msg_type = json_msg["msg_type"];
@@ -41,18 +43,16 @@ void MessageAnalysis::process_received_message(){
 
     if (msg_type == "request"){
 
-        cout << "\n\nVRIKA REQUEST ---------------------------------";
+        cout << "\n\n-----------VRIKA REQUEST ------------" << endl;
 
         if (msg_content == "make_connection") {
-            cout << "VRIKA make_connection ---------------------------------";
+            cout << "--------------VRIKA make_connection ---------" << endl;
             // check whether the application is already connected to a client
             if(!app_ptr->in_connection) {
                 // server accepts the connection
                 app_ptr->in_connection = true;
-                cout<<"\nEFTASA 000" << endl;
-                app_ptr->ip_bond = msg_data["ip"];
 
-                cout<<"\nEFTASA 111" << endl;
+                app_ptr->ip_bond = msg_data["ip"];
 
                 // prepare the response to the client
                 map<string, string> data;
@@ -81,7 +81,7 @@ void MessageAnalysis::process_received_message(){
         } else if (msg_content == "identify") {
 
         } else if (msg_content == "execute_command") {
-            cout << "\n\nVRIKA execute_command ---------------------------------";
+            cout << "-------- VRIKA execute_command ---------------------------" << endl;
             string command_type = msg_data["type"];
 
             if (command_type == "shutdown_system") {
