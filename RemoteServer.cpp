@@ -184,6 +184,8 @@ void RemoteServer::listen_thread() {
         cout << "================ Ftiaxnw thread gia message analysis ========================" << endl;
         msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, command_exec_ptr, recv_buf));
 
+        sleep(1);
+
         if (terminate_server) {
             break;
         }
@@ -196,6 +198,8 @@ void RemoteServer::listen_thread() {
         // 0 means INVALID_SOCKET in WinSock
         printf("accept failed!");
     }
+
+
 
     sockClose(s);
     sockQuit();
