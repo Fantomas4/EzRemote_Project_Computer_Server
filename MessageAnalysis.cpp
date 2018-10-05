@@ -9,11 +9,13 @@
 
 #include "nlohmann/json.hpp"
 
-MessageAnalysis::MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, CommandExec *command_exec_ptr, char *recv_buf) {
+MessageAnalysis::MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, CommandExec *command_exec_ptr, string received_msg) {
     this->app_ptr = app_ptr;
     this->server_ptr = server_ptr;
     this->command_exec_ptr = command_exec_ptr;
-    recv_msg = recv_buf;
+    this->received_msg = received_msg;
+
+    cout << "received_msg inside constructor of MessageAnalysis is: " << this->received_msg << endl;
 
     // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
     // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
@@ -28,12 +30,9 @@ void MessageAnalysis::process_received_message(){
 
     using namespace nlohmann;
 
-    // convert recv_msg to string
-    string s_msg = recv_msg;
+    cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 
-    cout << "\n\ns_msg inside process_received_message() is : " << s_msg << endl;
-
-    json json_msg = json::parse(s_msg);
+    json json_msg = json::parse(received_msg);
 
     string msg_type = json_msg["msg_type"];
 

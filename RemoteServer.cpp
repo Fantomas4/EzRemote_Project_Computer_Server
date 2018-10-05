@@ -179,12 +179,16 @@ void RemoteServer::listen_thread() {
 
         cout << "RemoteServer.cpp : recv_buf is: " << recv_buf << endl;
 
+        string s_received_msg = recv_buf;
+
+        cout << "s_received_msg before sending it to func is: " << s_received_msg << endl;
+
         // Create a thread to process the received message and determine the client's given command
         // The thread is created by the MessageAnalysis Object, during its construction.
         cout << "================ Ftiaxnw thread gia message analysis ========================" << endl;
-        msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, command_exec_ptr, recv_buf));
+        msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, command_exec_ptr, s_received_msg));
 
-        sleep(1);
+//        sleep(1);
 
         if (terminate_server) {
             break;
