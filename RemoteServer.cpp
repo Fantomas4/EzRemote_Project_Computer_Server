@@ -3,16 +3,14 @@
 //
 
 #include "RemoteServer.h"
+
 #include <thread>
 #include <mutex>
 
-#include "MessageAnalysis.h"
-
 std::mutex recv_buffer_mutex;
 
-RemoteServer::RemoteServer(App *app_obj, CommandExec* command_exec_obj) {
+RemoteServer::RemoteServer(App *app_obj) {
     this->app_ptr = app_obj;
-    this->command_exec_ptr = command_exec_obj;
     run();
 }
 
@@ -186,7 +184,7 @@ void RemoteServer::listen_thread() {
         // Create a thread to process the received message and determine the client's given command
         // The thread is created by the MessageAnalysis Object, during its construction.
         cout << "================ Ftiaxnw thread gia message analysis ========================" << endl;
-        msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, this, command_exec_ptr, s_received_msg));
+        msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, s_received_msg));
 
 //        sleep(1);
 

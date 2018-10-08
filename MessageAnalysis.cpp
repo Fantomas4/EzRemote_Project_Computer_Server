@@ -3,16 +3,19 @@
 //
 
 #include "App.h"
+
+
+
+
+#include <iostream>
 #include "MessageAnalysis.h"
-#include "RemoteServer.h"
-#include "CommandExec.h"
 
 #include "nlohmann/json.hpp"
 
-MessageAnalysis::MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, CommandExec *command_exec_ptr, string received_msg) {
+using namespace std;
+
+MessageAnalysis::MessageAnalysis(App *app_ptr, string received_msg) {
     this->app_ptr = app_ptr;
-    this->server_ptr = server_ptr;
-    this->command_exec_ptr = command_exec_ptr;
     this->received_msg = received_msg;
 
     cout << "received_msg inside constructor of MessageAnalysis is: " << this->received_msg << endl;
@@ -47,11 +50,11 @@ void MessageAnalysis::process_received_message(){
         if (msg_content == "make_connection") {
             cout << "--------------VRIKA make_connection ---------" << endl;
             // check whether the application is already connected to a client
-            if(!app_ptr->in_connection) {
+            if(!app_ptr->is_in_connection()) {
                 // server accepts the connection
-                app_ptr->in_connection = true;
+                app_ptr->set_in_connection_to_true();
 
-                app_ptr->ip_bond = msg_data["ip"];
+                app_ptr->get_ip_bond_address() = msg_data["ip"];
 
                 // prepare the response to the client
                 map<string, string> data;
@@ -61,7 +64,7 @@ void MessageAnalysis::process_received_message(){
 
                 cout << "Message Analysis is preparing to send reply to client..." <<endl;
                 // send the response to the client
-                server_ptr->server_reply(json_msg);
+                app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
 
             } else {
                 // server declines the connection because it is already bonded to a client
@@ -73,7 +76,7 @@ void MessageAnalysis::process_received_message(){
                 nlohmann::json json_msg = app_ptr->generate_json_msg("response", "connection_request_status", data);
 
                 // send the response to the client
-                server_ptr->server_reply(json_msg);
+                app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
 
             }
 
@@ -103,7 +106,7 @@ void MessageAnalysis::process_received_message(){
 //                shutdown_command_thread.detach();
 
 
-                command_exec_ptr->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
+                app_ptr->get_commandexec_obj_ptr()->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
 
                 // prepare the response to the client
                 map<string, string> data;
@@ -112,7 +115,7 @@ void MessageAnalysis::process_received_message(){
                 nlohmann::json json_msg = app_ptr->generate_json_msg("response", "command_request_status", data);
 
                 // send the response to the client
-                server_ptr->server_reply(json_msg);
+                app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
 
             } else if (command_type == "cancel_system_shutdown") {
 

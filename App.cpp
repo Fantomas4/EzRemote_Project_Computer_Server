@@ -6,17 +6,37 @@
 #include <iostream>
 #include "nlohmann/json.hpp"
 
-#include "RemoteServer.h"
-#include "CommandExec.h"
-
 
 using namespace std;
 
 App::App() {
-    in_connection = false;
-    command_exec = new CommandExec();
-    server = new RemoteServer(this, command_exec);
 
+    command_exec = CommandExec();
+    in_connection = false;
+};
+
+void App:initialize_server() {
+    remote_server = RemoteServer(this);
+};
+
+RemoteServer* App::get_remoteserver_obj_ptr() {
+    return &remote_server;
+}
+
+CommandExec* App::get_commandexec_obj_ptr() {
+    return &command_exec;
+}
+
+bool App::is_in_connection() {
+    return in_connection;
+}
+
+string App::get_ip_bond_address() {
+    return ip_bond;
+}
+
+void App::set_in_connection_to_true() {
+    in_connection = true;
 }
 
 nlohmann::json App::generate_json_msg(string msg_type, string msg_content, map<string, string> data) {
