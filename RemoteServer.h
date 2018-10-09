@@ -80,6 +80,8 @@ private:
 public:
     RemoteServer(App *app_obj);
 
+    RemoteServer();
+
     void server_reply(nlohmann::json json_msg);
 
 

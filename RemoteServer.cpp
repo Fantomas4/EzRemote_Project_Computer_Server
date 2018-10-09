@@ -9,6 +9,8 @@
 
 std::mutex recv_buffer_mutex;
 
+RemoteServer::RemoteServer() {}
+
 RemoteServer::RemoteServer(App *app_obj) {
     this->app_ptr = app_obj;
     run();
@@ -242,4 +244,6 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
 //    cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
     cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
+
+
 

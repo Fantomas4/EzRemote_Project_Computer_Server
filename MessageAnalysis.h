@@ -11,6 +11,8 @@
 // forward declaration
 class App;
 
+
+
 class MessageAnalysis {
 
 private:

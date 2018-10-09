@@ -10,7 +10,7 @@
 using namespace std;
 
 App::App() {
-
+    remote_server = RemoteServer(this);
     command_exec = CommandExec();
     in_connection = false;
 };
