@@ -15,7 +15,7 @@ App::App() {
     in_connection = false;
 };
 
-void App:initialize_server() {
+void App::initialize_server() {
     remote_server = RemoteServer(this);
 };
 
