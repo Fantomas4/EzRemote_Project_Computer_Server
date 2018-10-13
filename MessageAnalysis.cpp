@@ -14,7 +14,7 @@
 
 using namespace std;
 
-MessageAnalysis::MessageAnalysis(App *app_ptr, string received_msg) {
+MessageAnalysis::MessageAnalysis(App *app_ptr, std::string received_msg) {
     this->app_ptr = app_ptr;
     this->received_msg = received_msg;
 
@@ -25,23 +25,23 @@ MessageAnalysis::MessageAnalysis(App *app_ptr, string received_msg) {
     // To call a member function, the first argument to std::bind must be a pointer, reference, or
     // shared pointer to an object of the appropriate type
     this->msg_analysis_thread = thread(&MessageAnalysis::process_received_message, this);
+    this->msg_analysis_thread.detach();
+
 
 
 }
 
 void MessageAnalysis::process_received_message(){
 
-    using namespace nlohmann;
-
     cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 
-    json json_msg = json::parse(received_msg);
+    nlohmann::json json_msg = nlohmann::json::parse(received_msg);
 
     string msg_type = json_msg["msg_type"];
 
     string msg_content = json_msg["msg_content"];
 
-    json msg_data = json_msg["msg_data"];
+    nlohmann::json msg_data = json_msg["msg_data"];
 
     if (msg_type == "request"){
 

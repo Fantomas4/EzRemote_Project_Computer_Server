@@ -71,7 +71,7 @@ int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
     // temp_buf temporarily holds the last string message the recv() function has received from the client
     int temp_buf_size = 1000;
     char temp_buf[temp_buf_size];
-    string s_recv_buf;
+    std::string s_recv_buf;
 
     int n = 0, total_size = 0;
 
@@ -106,7 +106,7 @@ int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
 
     //buf[total] = 0;
 
-    cout << "------------------------------ I return from Recv... -----------------------------------------" << "\n\n";
+    std::cout << "------------------------------ I return from Recv... -----------------------------------------" << "\n\n";
 
     return total_size;
 }
@@ -156,7 +156,7 @@ void RemoteServer::listen_thread() {
 
 //    while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != 0 ) {
     while (true) {
-        cout << "****** Listen LOOP *********" << "\n\n";
+        std::cout << "****** Listen LOOP *********" << "\n\n";
 
         // 0 means INVALID_SOCKET in WinSock
 
@@ -177,15 +177,15 @@ void RemoteServer::listen_thread() {
         //recv_buf[recv_size] = '\0';
         //puts(recv_buf);
 
-        cout << "RemoteServer.cpp : recv_buf is: " << recv_buf << endl;
+        std::cout << "RemoteServer.cpp : recv_buf is: " << recv_buf << std::endl;
 
-        string s_received_msg = recv_buf;
+        std::string s_received_msg = recv_buf;
 
-        cout << "s_received_msg before sending it to func is: " << s_received_msg << endl;
+        std::cout << "s_received_msg before sending it to func is: " << s_received_msg << std::endl;
 
         // Create a thread to process the received message and determine the client's given command
         // The thread is created by the MessageAnalysis Object, during its construction.
-        cout << "================ Ftiaxnw thread gia message analysis ========================" << endl;
+        std::cout << "================ Ftiaxnw thread gia message analysis ========================" << std::endl;
         msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, s_received_msg));
 
 //        sleep(1);
@@ -196,7 +196,7 @@ void RemoteServer::listen_thread() {
 
     }
 
-    cout << "============================================-2";
+    std::cout << "============================================-2";
 
     if (new_socket == 0) {
         // 0 means INVALID_SOCKET in WinSock
@@ -217,7 +217,7 @@ void RemoteServer::run() {
 
 void RemoteServer::server_reply(nlohmann::json json_msg) {
 
-    using namespace nlohmann;
+    using namespace std;
 
     // converts the json data from outbound_json_buffer to a string,
     // then converts the string to const char* and assigns it to outbound_msg

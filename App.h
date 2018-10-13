@@ -8,7 +8,6 @@
 #include <iostream>
 #include "nlohmann/json.hpp"
 
-using namespace std;
 
 #include "RemoteServer.h"
 #include "CommandExec.h"
@@ -22,7 +21,7 @@ private:
     // states whether the server is currently connected to a client.
     bool in_connection;
     // holds the ip of the client that the application is currently bonded to.
-    string ip_bond;
+    std::string ip_bond;
 
 public:
     App();
@@ -35,11 +34,11 @@ public:
 
     bool is_in_connection();
 
-    string get_ip_bond_address() ;
+    std::string get_ip_bond_address() ;
 
     void set_in_connection_to_true();
 
-    nlohmann::json generate_json_msg(string msg_type, string msg_content, map<string, string> data);
+    nlohmann::json generate_json_msg(std::string msg_type, std::string msg_content, std::map<std::string, std::string> data);
 
 
 

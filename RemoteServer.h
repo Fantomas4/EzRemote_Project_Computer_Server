@@ -43,7 +43,6 @@ typedef int SOCKET;
 // forward declaration
 class App;
 
-using namespace std;
 
 class RemoteServer {
 
@@ -55,13 +54,13 @@ private:
     SOCKET s , new_socket;
     struct sockaddr_in server , client;
     socklen_t c;
-    string final_message;
+    std::string final_message;
     nlohmann::json json_message;
     unsigned short PORT = 7890;
     int recv_size;
     char recv_buf[DEFAULT_BUFLEN] = {0};   // Initialises all elements to null.
     int recv_buf_len = DEFAULT_BUFLEN;
-    vector<MessageAnalysis> msg_analysis_threads;
+    std::vector<MessageAnalysis> msg_analysis_threads;
 
     bool terminate_server = false;
 
@@ -78,7 +77,7 @@ private:
     void run();
 
 public:
-    RemoteServer(App *app_obj);
+    explicit RemoteServer(App *app_obj);
 
     RemoteServer();
 

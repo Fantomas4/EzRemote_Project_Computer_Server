@@ -7,7 +7,6 @@
 #include "nlohmann/json.hpp"
 
 
-using namespace std;
 
 App::App() {
     remote_server = RemoteServer(this);
@@ -31,7 +30,7 @@ bool App::is_in_connection() {
     return in_connection;
 }
 
-string App::get_ip_bond_address() {
+std::string App::get_ip_bond_address() {
     return ip_bond;
 }
 
@@ -39,7 +38,7 @@ void App::set_in_connection_to_true() {
     in_connection = true;
 }
 
-nlohmann::json App::generate_json_msg(string msg_type, string msg_content, map<string, string> data) {
+nlohmann::json App::generate_json_msg(std::string msg_type, std::string msg_content, std::map<std::string, std::string> data) {
     // msg_type is "request" or "response
     // msg_content describes the data content of the message
     // for example, identification_info
