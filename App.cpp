@@ -9,21 +9,19 @@
 
 
 App::App() {
-    remote_server = RemoteServer(this);
-    command_exec = CommandExec();
+    remote_server = new RemoteServer(this);
+    command_exec = new CommandExec();
     in_connection = false;
-};
 
-void App::initialize_server() {
-    remote_server = RemoteServer(this);
+    remote_server->run();
 };
 
 RemoteServer* App::get_remoteserver_obj_ptr() {
-    return &remote_server;
+    return remote_server;
 }
 
 CommandExec* App::get_commandexec_obj_ptr() {
-    return &command_exec;
+    return command_exec;
 }
 
 bool App::is_in_connection() {

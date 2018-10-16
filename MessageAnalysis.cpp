@@ -24,11 +24,12 @@ MessageAnalysis::MessageAnalysis(App *app_ptr, std::string received_msg) {
     // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
     // To call a member function, the first argument to std::bind must be a pointer, reference, or
     // shared pointer to an object of the appropriate type
+    this->run_thread();
+
+}
+
+void MessageAnalysis::run_thread() {
     this->msg_analysis_thread = thread(&MessageAnalysis::process_received_message, this);
-    this->msg_analysis_thread.detach();
-
-
-
 }
 
 void MessageAnalysis::process_received_message(){

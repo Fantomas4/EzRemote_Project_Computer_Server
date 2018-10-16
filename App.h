@@ -16,8 +16,8 @@ class App {
 
 private:
 
-    RemoteServer remote_server;
-    CommandExec command_exec;
+    RemoteServer* remote_server;
+    CommandExec* command_exec;
     // states whether the server is currently connected to a client.
     bool in_connection;
     // holds the ip of the client that the application is currently bonded to.
@@ -25,8 +25,6 @@ private:
 
 public:
     App();
-
-    void initialize_server();
 
     RemoteServer* get_remoteserver_obj_ptr();
 

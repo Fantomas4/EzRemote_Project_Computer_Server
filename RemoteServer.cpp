@@ -9,11 +9,18 @@
 
 std::mutex recv_buffer_mutex;
 
-RemoteServer::RemoteServer() {}
+RemoteServer::RemoteServer() {
+    std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEFAULT CONSTRUCTOR *******************" << std::endl;
+}
 
 RemoteServer::RemoteServer(App *app_obj) {
+
+    std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ CUSTOM CONSTRUCTOR *******************" << std::endl;
+
     this->app_ptr = app_obj;
-    run();
+
+    this->final_message = "CUSTOM CONSTRUCTOR";
+
 }
 
 int RemoteServer::sockInit() {
@@ -76,8 +83,7 @@ int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
     int n = 0, total_size = 0;
 
     do {
-//        cout << "MPIKA" << "\n\n";
-//        n = recv(this->new_socket, buf+total_size, buf_size-total_size-1, 0);
+
         n = recv(this->new_socket, temp_buf, temp_buf_size, 0);
         total_size += n;
 
@@ -85,10 +91,6 @@ int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
         if (n == 0) {
             break;
         }
-
-//        cout << "n is: " << n << "\n\n";
-//        cout << "total_size is: " << total_size << "\n\n";
-//        cout << "temp_buf is: " << temp_buf << "\n\n";
 
         // create a temporary string to store the recv_buf char array as a string.
         s_recv_buf = recv_buf;
@@ -100,11 +102,7 @@ int RemoteServer::Recv(char *recv_buf, int recv_buf_size) {
         strcpy(recv_buf, s_recv_buf.c_str());
         recv_buffer_mutex.unlock();
 
-//        cout << "strlen(temp_buf) is: " << strlen(temp_buf) << "\n\n";
-
     } while(strlen(temp_buf) == n);
-
-    //buf[total] = 0;
 
     std::cout << "------------------------------ I return from Recv... -----------------------------------------" << "\n\n";
 
@@ -122,7 +120,7 @@ void RemoteServer::listen_thread() {
     printf("Socket initialised!\n");
 
     //Create a socket
-    if((s = socket(AF_INET , SOCK_STREAM , 0 )) == 0) {
+    if((this->s = socket(AF_INET , SOCK_STREAM , 0 )) == 0) {
         // 0 means INVALID_SOCKET in WinSock
         printf("Error. Could not create socket.");
     }
@@ -132,6 +130,15 @@ void RemoteServer::listen_thread() {
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(PORT);
+
+    int yes=1;
+    //char yes='1'; // Solaris people use this
+
+    // lose the pesky "Address already in use" error message
+    if (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
+        perror("setsockopt");
+        exit(1);
+    }
 
     //Bind
     if( bind(s ,(struct sockaddr *)&server , sizeof(server)) == -1) {
@@ -146,47 +153,38 @@ void RemoteServer::listen_thread() {
     //Accept an incoming connection
     puts("Waiting for incoming connections...");
 
-    c = sizeof(struct sockaddr_in);
+    this->c = sizeof(struct sockaddr_in);
 
-    // *** WARNING *** accept() should not be used like this when accepting a connection
-    // from an already existing client socket, otherwise the program execution will get
-    // stuck here.
+    this->new_socket = accept(s , (struct sockaddr *)&client, &c);
 
-    new_socket = accept(s , (struct sockaddr *)&client, &c);
-
-//    while ( (new_socket = accept(s , (struct sockaddr *)&client, &c)) != 0 ) {
     while (true) {
         std::cout << "****** Listen LOOP *********" << "\n\n";
 
         // 0 means INVALID_SOCKET in WinSock
 
-//        puts("Connection accepted");
-
-//        cout << "\n\nTEST BUFFER BEFORE RECV IS: " << recv_buf << "\n\n";
-
-        if((recv_size = Recv(recv_buf, recv_buf_len)) == -1) {
+        if((this->recv_size = Recv(recv_buf, recv_buf_len)) == -1) {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
         }
 
-//        cout << "recv_size is1: " << recv_size << "\n\n";
-//        cout << "TEST BUFFER IS1: " << recv_buf << "\n\n";
-
-
         //Add a NULL terminating character to make it a proper string before printing
         //recv_buf[recv_size] = '\0';
-        //puts(recv_buf);
 
-        std::cout << "RemoteServer.cpp : recv_buf is: " << recv_buf << std::endl;
+        std::cout << "RemoteServer.cpp : recv_buf is: " << this->recv_buf << std::endl;
 
-        std::string s_received_msg = recv_buf;
+        std::string s_received_msg = this->recv_buf;
 
         std::cout << "s_received_msg before sending it to func is: " << s_received_msg << std::endl;
 
         // Create a thread to process the received message and determine the client's given command
         // The thread is created by the MessageAnalysis Object, during its construction.
         std::cout << "================ Ftiaxnw thread gia message analysis ========================" << std::endl;
-        msg_analysis_threads.emplace_back(MessageAnalysis(app_ptr, s_received_msg));
+
+        MessageAnalysis* new_msg_analysis_ptr= new MessageAnalysis(app_ptr, s_received_msg);
+
+        msg_analysis_threads.emplace_back(new_msg_analysis_ptr);
+
+        MessageAnalysis* test_ptr = msg_analysis_threads[0];
 
 //        sleep(1);
 
@@ -237,7 +235,7 @@ void RemoteServer::server_reply(nlohmann::json json_msg) {
         cout << outbound_msg[i];
     }
 
-    send(new_socket , outbound_msg, strlen(outbound_msg) , 0);
+    send(this->new_socket , outbound_msg, strlen(outbound_msg) , 0);
 
     cout << "\n\n";
 

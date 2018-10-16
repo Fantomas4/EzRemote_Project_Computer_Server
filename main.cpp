@@ -2,6 +2,6 @@
 #include "App.h"
 
 int main() {
-    App app = App();
+    App* app = new App();
     return 0;
 }

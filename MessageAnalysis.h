@@ -23,6 +23,8 @@ private:
 
     void process_received_message();
 
+    void run_thread();
+
 public:
     MessageAnalysis(App *app_ptr, std::string received_msg);
 
