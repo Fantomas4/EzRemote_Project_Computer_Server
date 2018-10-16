@@ -27,6 +27,8 @@ private:
 
 public:
 
+    MessageAnalysis(const MessageAnalysis&);
+
     MessageAnalysis();
 
     MessageAnalysis(App *app_ptr, std::string received_msg);

@@ -14,6 +14,10 @@
 
 using namespace std;
 
+// https://stackoverflow.com/questions/6077143/disable-copy-constructor?fbclid=IwAR22A0BtOyMnyDpXwWNi2HVt3rGfQ4MpmvZxe4BmOXjmcRPuVxUVrYaYW6g
+// Deleted copy constructor as a preemptive measure.
+MessageAnalysis::MessageAnalysis(const MessageAnalysis&) = delete;
+
 MessageAnalysis::MessageAnalysis() {}
 
 MessageAnalysis::MessageAnalysis(App *app_ptr, std::string received_msg) {

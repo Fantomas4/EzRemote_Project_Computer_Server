@@ -59,7 +59,7 @@ private:
     int recv_size;
     char recv_buf[DEFAULT_BUFLEN] = {0};   // Initialises all elements to null.
     int recv_buf_len = DEFAULT_BUFLEN;
-    std::vector<MessageAnalysis*> msg_analysis_threads;
+    std::vector<MessageAnalysis> msg_analysis_threads;
 
     bool terminate_server = false;
 

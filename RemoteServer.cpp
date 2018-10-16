@@ -131,14 +131,14 @@ void RemoteServer::listen_thread() {
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(PORT);
 
-    int yes=1;
-    //char yes='1'; // Solaris people use this
-
-    // lose the pesky "Address already in use" error message
-    if (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
-        perror("setsockopt");
-        exit(1);
-    }
+//    int yes=1;
+//    //char yes='1'; // Solaris people use this
+//
+//    // lose the pesky "Address already in use" error message
+//    if (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
+//        perror("setsockopt");
+//        exit(1);
+//    }
 
     //Bind
     if( bind(s ,(struct sockaddr *)&server , sizeof(server)) == -1) {
@@ -180,11 +180,8 @@ void RemoteServer::listen_thread() {
         // The thread is created by the MessageAnalysis Object, during its construction.
         std::cout << "================ Ftiaxnw thread gia message analysis ========================" << std::endl;
 
-        MessageAnalysis* msg_analysis_ptr = new MessageAnalysis(app_ptr, s_received_msg);
-
-        msg_analysis_threads.emplace_back(std::move(msg_analysis_ptr));
-
-//        sleep(1);
+        // https://en.cppreference.com/w/cpp/container/vector/emplace_back?fbclid=IwAR3ndX0Q_Ar04zBdiaXJizIvjO6drKG1nxJ1EnIgyC5P35HJl15BW5L424U
+        msg_analysis_threads.emplace_back(app_ptr, s_received_msg);
 
         if (terminate_server) {
             break;
