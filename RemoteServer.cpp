@@ -180,11 +180,9 @@ void RemoteServer::listen_thread() {
         // The thread is created by the MessageAnalysis Object, during its construction.
         std::cout << "================ Ftiaxnw thread gia message analysis ========================" << std::endl;
 
-        MessageAnalysis* new_msg_analysis_ptr= new MessageAnalysis(app_ptr, s_received_msg);
+        MessageAnalysis* msg_analysis_ptr = new MessageAnalysis(app_ptr, s_received_msg);
 
-        msg_analysis_threads.emplace_back(new_msg_analysis_ptr);
-
-        MessageAnalysis* test_ptr = msg_analysis_threads[0];
+        msg_analysis_threads.emplace_back(std::move(msg_analysis_ptr));
 
 //        sleep(1);
 

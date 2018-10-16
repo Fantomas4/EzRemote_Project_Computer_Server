@@ -14,6 +14,8 @@
 
 using namespace std;
 
+MessageAnalysis::MessageAnalysis() {}
+
 MessageAnalysis::MessageAnalysis(App *app_ptr, std::string received_msg) {
     this->app_ptr = app_ptr;
     this->received_msg = received_msg;

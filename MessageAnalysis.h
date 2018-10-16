@@ -26,6 +26,9 @@ private:
     void run_thread();
 
 public:
+
+    MessageAnalysis();
+
     MessageAnalysis(App *app_ptr, std::string received_msg);
 
 };
