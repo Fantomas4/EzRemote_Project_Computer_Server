@@ -131,14 +131,22 @@ void RemoteServer::listen_thread() {
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons(PORT);
 
-//    int yes=1;
-//    //char yes='1'; // Solaris people use this
-//
-//    // lose the pesky "Address already in use" error message
-//    if (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
-//        perror("setsockopt");
-//        exit(1);
-//    }
+
+
+    // ******* Start - Part used to reuse socket. Useful when application crashes during testing,
+    // causing the port to remain locked *******
+    int yes=1;
+    //char yes='1'; // Solaris people use this
+
+    // lose the pesky "Address already in use" error message
+    if (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
+        perror("setsockopt");
+        exit(1);
+    }
+    // ******* End *******
+
+
+
 
     //Bind
     if( bind(s ,(struct sockaddr *)&server , sizeof(server)) == -1) {
