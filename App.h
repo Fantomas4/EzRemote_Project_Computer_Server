@@ -34,9 +34,11 @@ public:
 
     std::string get_ip_bond_address() ;
 
+    void set_ip_bond_address(std::string ip);
+
     void set_in_connection_to_true();
 
-    nlohmann::json generate_json_msg(std::string msg_type, std::string msg_content, std::map<std::string, std::string> data);
+    nlohmann::json generate_json_msg(std::string status, std::map<std::string, std::string> data);
 
 
 
