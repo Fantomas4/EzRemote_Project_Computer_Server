@@ -5,7 +5,6 @@
 #include "CommandExec.h"
 #include <iostream>
 
-
 #ifdef __WIN32
     #include <synchapi.h>
 #else

@@ -3,16 +3,23 @@
 //
 
 #include "App.h"
+
+
+
+
+#include <iostream>
 #include "MessageAnalysis.h"
-#include "RemoteServer.h"
-#include "CommandExec.h"
 
 #include "nlohmann/json.hpp"
 
-MessageAnalysis::MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, CommandExec *command_exec_ptr, string received_msg) {
+using namespace std;
+
+// https://stackoverflow.com/questions/6077143/disable-copy-constructor?fbclid=IwAR22A0BtOyMnyDpXwWNi2HVt3rGfQ4MpmvZxe4BmOXjmcRPuVxUVrYaYW6g
+// Deleted copy constructor as a preemptive measure.
+//MessageAnalysis::MessageAnalysis(const MessageAnalysis&) = delete;
+
+MessageAnalysis::MessageAnalysis(App *app_ptr, std::string received_msg) {
     this->app_ptr = app_ptr;
-    this->server_ptr = server_ptr;
-    this->command_exec_ptr = command_exec_ptr;
     this->received_msg = received_msg;
 
     cout << "received_msg inside constructor of MessageAnalysis is: " << this->received_msg << endl;
@@ -21,70 +28,45 @@ MessageAnalysis::MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, Command
     // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
     // To call a member function, the first argument to std::bind must be a pointer, reference, or
     // shared pointer to an object of the appropriate type
-    this->msg_analysis_thread = thread(&MessageAnalysis::process_received_message, this);
-
+    this->run_thread();
 
 }
 
-void MessageAnalysis::process_received_message(){
+void MessageAnalysis::run_thread() {
+    this->msg_analysis_thread = thread(&MessageAnalysis::process_received_message, this);
+}
 
-    using namespace nlohmann;
+void MessageAnalysis::process_received_message() {
 
     cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 
-    json json_msg = json::parse(received_msg);
+    nlohmann::json json_msg = nlohmann::json::parse(received_msg);
 
-    string msg_type = json_msg["msg_type"];
+    string request = json_msg["request"];
 
-    string msg_content = json_msg["msg_content"];
+    nlohmann::json msg_data = json_msg["data"];
 
-    json msg_data = json_msg["msg_data"];
+    if (request == "make_connection") {
+        cout << "--------------VRIKA make_connection ---------" << endl;
+        // check whether the application is already connected to a client
+        if (!app_ptr->is_in_connection()) {
+            // server accepts the connection
+            app_ptr->set_in_connection_to_true();
 
-    if (msg_type == "request"){
+            app_ptr->set_ip_bond_address(msg_data["ip"]);
 
-        cout << "\n\n-----------VRIKA REQUEST ------------" << endl;
+            // prepare the response to the client
+            map<string, string> data;
 
-        if (msg_content == "make_connection") {
-            cout << "--------------VRIKA make_connection ---------" << endl;
-            // check whether the application is already connected to a client
-            if(!app_ptr->in_connection) {
-                // server accepts the connection
-                app_ptr->in_connection = true;
+            nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
 
-                app_ptr->ip_bond = msg_data["ip"];
+            cout << "Message Analysis is preparing to send reply to client..." << endl;
+            // send the response to the client
+            app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
 
-                // prepare the response to the client
-                map<string, string> data;
-                data["connection_request_status"] = "accepted";
+        }
 
-                nlohmann::json json_msg = app_ptr->generate_json_msg("response", "connection_request_status", data);
-
-                cout << "Message Analysis is preparing to send reply to client..." <<endl;
-                // send the response to the client
-                server_ptr->server_reply(json_msg);
-
-            } else {
-                // server declines the connection because it is already bonded to a client
-
-                // prepare the response to the client
-                map<string, string> data;
-                data["connection_request_status"] = "accepted";
-
-                nlohmann::json json_msg = app_ptr->generate_json_msg("response", "connection_request_status", data);
-
-                // send the response to the client
-                server_ptr->server_reply(json_msg);
-
-            }
-
-        } else if (msg_content == "identify") {
-
-        } else if (msg_content == "execute_command") {
-            cout << "-------- VRIKA execute_command ---------------------------" << endl;
-            string command_type = msg_data["type"];
-
-            if (command_type == "shutdown_system") {
-
+    } else if (request == "execute_shutdown_system_command") {
                 // extract string data from the json message
                 string s_hrs = msg_data["hours"];
                 string s_mns = msg_data["mins"];
@@ -102,29 +84,16 @@ void MessageAnalysis::process_received_message(){
 //                std::thread shutdown_command_thread = thread(&CommandExec::execute_shutdown_command, TimeObject(hours, mins, secs, msecs));
 //                shutdown_command_thread.detach();
 
-
-                command_exec_ptr->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
+//
+                app_ptr->get_commandexec_obj_ptr()->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
 
                 // prepare the response to the client
                 map<string, string> data;
-                data["command_request_status"] = "accepted";
 
-                nlohmann::json json_msg = app_ptr->generate_json_msg("response", "command_request_status", data);
+                nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
 
                 // send the response to the client
-                server_ptr->server_reply(json_msg);
+                app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
 
-            } else if (command_type == "cancel_system_shutdown") {
-
-            }
-        }
-
-    } else if (msg_type == "response") {
-        // Under Construction
     }
-
-
-
-
 }
-

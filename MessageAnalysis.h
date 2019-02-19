@@ -5,32 +5,29 @@
 #ifndef EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 #define EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 
-//#include "App.h"
-//#include "RemoteServer.h"
-//#include "CommandExec.h"
-
 #include <thread>
 
 
 // forward declaration
 class App;
-class RemoteServer;
-class CommandExec;
+
+
 
 class MessageAnalysis {
 
 private:
     App *app_ptr;
-    RemoteServer *server_ptr;
-    CommandExec *command_exec_ptr;
-    string received_msg;
+    std::string received_msg;
     std::thread msg_analysis_thread;
 
 
     void process_received_message();
 
+    void run_thread();
+
 public:
-    MessageAnalysis(App *app_ptr, RemoteServer *server_ptr, CommandExec *command_exec_ptr, string received_msg);
+
+    MessageAnalysis(App *app_ptr, std::string received_msg);
 
 };
 
