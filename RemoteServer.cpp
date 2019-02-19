@@ -133,17 +133,17 @@ void RemoteServer::listen_thread() {
 
 
 
-    // ******* Start - Part used to reuse socket. Useful when application crashes during testing,
-    // causing the port to remain locked *******
-    int yes=1;
-    //char yes='1'; // Solaris people use this
-
-    // lose the pesky "Address already in use" error message
-    if (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
-        perror("setsockopt");
-        exit(1);
-    }
-    // ******* End *******
+//    // ******* Start - Part used to reuse socket. Useful when application crashes during testing,
+//    // causing the port to remain locked *******
+//    int yes=1;
+//    //char yes='1'; // Solaris people use this
+//
+//    // lose the pesky "Address already in use" error message
+//    if (setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1) {
+//        perror("setsockopt");
+//        exit(1);
+//    }
+//    // ******* End *******
 
 
 
