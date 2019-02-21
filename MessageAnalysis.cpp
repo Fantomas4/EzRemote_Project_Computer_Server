@@ -44,8 +44,6 @@ void MessageAnalysis::process_received_message() {
 
     string request = json_msg["request"];
 
-    nlohmann::json msg_data = json_msg["data"];
-
     if (request == "make_connection") {
         cout << "--------------VRIKA make_connection ---------" << endl;
         // check whether the application is already connected to a client
@@ -53,6 +51,7 @@ void MessageAnalysis::process_received_message() {
             // server accepts the connection
             app_ptr->set_in_connection_to_true();
 
+            nlohmann::json msg_data = json_msg["data"];
             app_ptr->set_ip_bond_address(msg_data["ip"]);
 
             // prepare the response to the client
@@ -67,33 +66,43 @@ void MessageAnalysis::process_received_message() {
         }
 
     } else if (request == "execute_shutdown_system_command") {
-                // extract string data from the json message
-                string s_hrs = msg_data["hours"];
-                string s_mns = msg_data["mins"];
-                string s_secs = msg_data["secs"];
-                string s_msecs = msg_data["msecs"];
+        // extract string data from the json message
+        nlohmann::json msg_data = json_msg["data"];
 
-                // stoul converts the string from the temp variables above to the wanted unsigned integer type.
-                unsigned int hours = std::stoul(s_hrs);
-                unsigned int mins = std::stoul(s_mns);
-                unsigned int secs = std::stoul(s_secs);
-                unsigned int msecs = std::stoul(s_msecs);
+        string s_hrs = msg_data["hours"];
+        string s_mns = msg_data["mins"];
+        string s_secs = msg_data["secs"];
+        string s_msecs = msg_data["msecs"];
 
-//                // call static method from class CommandExec
-//                // and execute it in a new, detached thread
-//                std::thread shutdown_command_thread = thread(&CommandExec::execute_shutdown_command, TimeObject(hours, mins, secs, msecs));
-//                shutdown_command_thread.detach();
+        // stoul converts the string from the temp variables above to the wanted unsigned integer type.
+        unsigned int hours = std::stoul(s_hrs);
+        unsigned int mins = std::stoul(s_mns);
+        unsigned int secs = std::stoul(s_secs);
+        unsigned int msecs = std::stoul(s_msecs);
 
-//
-                app_ptr->get_commandexec_obj_ptr()->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
 
-                // prepare the response to the client
-                map<string, string> data;
+        app_ptr->get_commandexec_obj_ptr()->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
 
-                nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
+        // prepare the response to the client
+        map<string, string> data;
 
-                // send the response to the client
-                app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+        nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
 
+        // send the response to the client
+        app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+
+    } else if (request == "cancel_shutdown_system_command") {
+
+        app_ptr->get_commandexec_obj_ptr()->terminate_shutdown_timer_thread();
+
+        if (app_ptr->get_commandexec_obj_ptr()->get_terminate_timer_flag_value()) {
+            // prepare the response to the client
+            map<string, string> data;
+
+            nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
+
+            // send the response to the client
+            app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+        }
     }
 }

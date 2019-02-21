@@ -48,6 +48,10 @@ map<string, string> CommandExec::get_identification_info() {
 
 }
 
+bool CommandExec::get_terminate_timer_flag_value() {
+    return terminate_timer_flag;
+}
+
 
 void CommandExec::execute_shutdown_timer_thread(TimeObject time_data) {
     std::thread shutdown_command_thread = thread(&CommandExec::shutdown_timer, this, time_data);
