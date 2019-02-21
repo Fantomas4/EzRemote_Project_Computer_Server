@@ -39,6 +39,8 @@ public:
 
     void terminate_shutdown_timer_thread();
 
+    bool get_terminate_timer_flag_value();
+
 };
 
 
