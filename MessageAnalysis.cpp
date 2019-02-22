@@ -80,9 +80,6 @@ void MessageAnalysis::process_received_message() {
         unsigned int secs = std::stoul(s_secs);
         unsigned int msecs = std::stoul(s_msecs);
 
-
-        app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
-
         // prepare the response to the client
         map<string, string> data;
 
@@ -91,9 +88,11 @@ void MessageAnalysis::process_received_message() {
         // send the response to the client
         app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
 
+        app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->start_shutdown_timer(TimeObject(hours, mins, secs, msecs));
+
     } else if (request == "cancel_shutdown_system_command") {
 
-        app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->terminate_shutdown_timer_thread();
+        app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->cancel_shutdown_timer();
 
         if (app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->get_terminate_timer_flag_value()) {
             // prepare the response to the client

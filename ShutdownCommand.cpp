@@ -29,19 +29,17 @@ bool ShutdownCommand::get_terminate_timer_flag_value() {
     return terminate_timer_flag;
 }
 
-
-void ShutdownCommand::execute_shutdown_timer_thread(TimeObject time_data) {
-    std::thread shutdown_command_thread = thread(&ShutdownCommand::shutdown_timer, this, time_data);
-    shutdown_command_thread.detach();
-}
-
-void ShutdownCommand::terminate_shutdown_timer_thread() {
+void ShutdownCommand::cancel_shutdown_timer() {
     std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
     terminate_timer_flag = true;
     locker1.unlock();
 }
 
-void ShutdownCommand::shutdown_timer(TimeObject time_data) {
+void ShutdownCommand::start_shutdown_timer(TimeObject time_data) {
+
+    std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
+    terminate_timer_flag = false;
+    locker1.unlock();
 
     long long int t_target = time_data.get_msecs();
     auto t_start = std::chrono::high_resolution_clock::now();
