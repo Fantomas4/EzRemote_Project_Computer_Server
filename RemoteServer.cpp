@@ -155,6 +155,20 @@ void RemoteServer::listen_thread() {
     }
     puts("Socket bind done");
 
+
+//    // ************************************************************* TEST *************************************************************
+//    // set options to new_socket
+//    int val = 1;
+//
+//    // After creating the socket
+//    if (setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, (char *)&val, sizeof(val))){
+//        fprintf(stderr, "setsockopt failure : %d", errno);
+//    }
+//    // ************************************************************* TEST *************************************************************
+
+
+
+
     //Listen to incoming connections
     listen(s , 3);
 
@@ -173,28 +187,65 @@ void RemoteServer::listen_thread() {
         if((this->recv_size = Recv(recv_buf, recv_buf_len)) == -1) {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
+
+
+
+
+
+            // Uh oh!  Something bad happened.  Let's
+            // get the error code...
+            int errCode = WSAGetLastError();
+
+            // ..and the human readable error string!!
+            // Interesting:  Also retrievable by net helpmsg 10060
+            LPSTR errString = NULL;  // will be allocated and filled by FormatMessage
+
+            int size = FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                      FORMAT_MESSAGE_FROM_SYSTEM, // use windows internal message table
+                                      0,       // 0 since source is internal message table
+                                      errCode, // this is the error code returned by WSAGetLastError()
+                    // Could just as well have been an error code from generic
+                    // Windows errors from GetLastError()
+                                      0,       // auto-determine language to use
+                                      (LPSTR)&errString, // this is WHERE we want FormatMessage
+                    // to plunk the error string.  Note the
+                    // peculiar pass format:  Even though
+                    // errString is already a pointer, we
+                    // pass &errString (which is really type LPSTR* now)
+                    // and then CAST IT to (LPSTR).  This is a really weird
+                    // trip up.. but its how they do it on msdn:
+                    // http://msdn.microsoft.com/en-us/library/ms679351(VS.85).aspx
+                                      0,                 // min size for buffer
+                                      0 );               // 0, since getting message from system tables
+            printf( "Error code %d:  %s\n\nMessage was %d bytes, in case you cared to know this.\n\n", errCode, errString, size ) ;
+
+            LocalFree( errString ) ; // if you don't do this, you will get an
+            // ever so slight memory leak, since we asked
+            // FormatMessage to FORMAT_MESSAGE_ALLOCATE_BUFFER,
+            // and it does so using LocalAlloc
+            // Gotcha!  I guess.
+
+
+
+        } else {
+            // receive was successful
+            std::cout << "RemoteServer.cpp : recv_buf is: " << this->recv_buf << std::endl;
+
+            std::string s_received_msg = this->recv_buf;
+
+            std::cout << "s_received_msg before sending it to func is: " << s_received_msg << std::endl;
+
+            // Create a thread to process the received message and determine the client's given command
+            // The thread is created by the MessageAnalysis Object, during its construction.
+            std::cout << "================ Ftiaxnw thread gia message analysis ========================" << std::endl;
+
+            // https://en.cppreference.com/w/cpp/container/vector/emplace_back?fbclid=IwAR3ndX0Q_Ar04zBdiaXJizIvjO6drKG1nxJ1EnIgyC5P35HJl15BW5L424U
+            msg_analysis_threads.emplace_back(app_ptr, s_received_msg);
+
+            if (terminate_server) {
+                break;
+            }
         }
-
-        //Add a NULL terminating character to make it a proper string before printing
-        //recv_buf[recv_size] = '\0';
-
-        std::cout << "RemoteServer.cpp : recv_buf is: " << this->recv_buf << std::endl;
-
-        std::string s_received_msg = this->recv_buf;
-
-        std::cout << "s_received_msg before sending it to func is: " << s_received_msg << std::endl;
-
-        // Create a thread to process the received message and determine the client's given command
-        // The thread is created by the MessageAnalysis Object, during its construction.
-        std::cout << "================ Ftiaxnw thread gia message analysis ========================" << std::endl;
-
-        // https://en.cppreference.com/w/cpp/container/vector/emplace_back?fbclid=IwAR3ndX0Q_Ar04zBdiaXJizIvjO6drKG1nxJ1EnIgyC5P35HJl15BW5L424U
-        msg_analysis_threads.emplace_back(app_ptr, s_received_msg);
-
-        if (terminate_server) {
-            break;
-        }
-
     }
 
     std::cout << "============================================-2";
