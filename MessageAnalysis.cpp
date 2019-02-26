@@ -18,25 +18,23 @@ using namespace std;
 // Deleted copy constructor as a preemptive measure.
 //MessageAnalysis::MessageAnalysis(const MessageAnalysis&) = delete;
 
-MessageAnalysis::MessageAnalysis(App *app_ptr, std::string received_msg) {
-    this->app_ptr = app_ptr;
-    this->received_msg = received_msg;
+//MessageAnalysis::MessageAnalysis(std::string received_msg) {
+//
+//    cout << "received_msg inside constructor of MessageAnalysis is: " << received_msg << endl;
+//
+//    // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
+//    // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
+//    // To call a member function, the first argument to std::bind must be a pointer, reference, or
+//    // shared pointer to an object of the appropriate type
+//    this->run_thread(std);
+//
+//}
 
-    cout << "received_msg inside constructor of MessageAnalysis is: " << this->received_msg << endl;
-
-    // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
-    // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
-    // To call a member function, the first argument to std::bind must be a pointer, reference, or
-    // shared pointer to an object of the appropriate type
-    this->run_thread();
-
+void MessageAnalysis::run_thread(std::string received_msg) {
+    std::thread msg_analysis_thread(&MessageAnalysis::process_received_message);
 }
 
-void MessageAnalysis::run_thread() {
-    this->msg_analysis_thread = thread(&MessageAnalysis::process_received_message, this);
-}
-
-void MessageAnalysis::process_received_message() {
+void MessageAnalysis::process_received_message(std::string received_msg) {
 
     cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 

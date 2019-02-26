@@ -10,7 +10,10 @@
 #include "nlohmann/json.hpp"
 
 class JSON {
-    nlohmann::json generate_json_msg(std::string status, std::map<std::string, std::string> data);
+
+public:
+    static nlohmann::json prepare_json_reply(std::string status, std::map<std::string, std::string> data);
+    static nlohmann::json convert_string_to_json(std::string received_msg);
 };
 
 

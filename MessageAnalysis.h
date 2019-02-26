@@ -16,19 +16,14 @@ class App;
 class MessageAnalysis {
 
 private:
-    App *app_ptr;
-    std::string received_msg;
-    std::thread msg_analysis_thread;
+    void process_received_message(std::string received_msg);
 
-
-    void process_received_message();
-
-    void run_thread();
 
 public:
 
-    MessageAnalysis(App *app_ptr, std::string received_msg);
+//    MessageAnalysis(std::string received_msg);
 
+    static void run_thread(std::string received_msg);
 };
 
 
