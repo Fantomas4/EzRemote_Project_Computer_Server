@@ -261,6 +261,22 @@ void RemoteServer::listen_thread() {
     sockQuit();
 }
 
+bool RemoteServer::is_in_connection() {
+    return in_connection;
+}
+
+std::string RemoteServer::get_ip_bond_address() {
+    return ip_bond;
+}
+
+void RemoteServer::set_ip_bond_address(std::string ip) {
+    ip_bond = ip;
+}
+
+void RemoteServer::set_in_connection_value(bool value) {
+    in_connection = true;
+}
+
 void RemoteServer::run() {
     // listen_thread() will be executed as the main thread.
     listen_thread();

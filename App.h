@@ -15,30 +15,10 @@
 class App {
 
 private:
-
     RemoteServer remote_server;
-    CommandExec command_exec;
-    // states whether the server is currently connected to a client.
-    bool in_connection;
-    // holds the ip of the client that the application is currently bonded to.
-    std::string ip_bond;
 
 public:
     App();
-
-    RemoteServer* get_remoteserver_obj_ptr();
-
-    CommandExec* get_commandexec_obj_ptr() ;
-
-    bool is_in_connection();
-
-    std::string get_ip_bond_address() ;
-
-    void set_ip_bond_address(std::string ip);
-
-    void set_in_connection_to_true();
-
-    nlohmann::json generate_json_msg(std::string status, std::map<std::string, std::string> data);
 
 
 

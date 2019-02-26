@@ -47,14 +47,15 @@ class App;
 class RemoteServer {
 
 private:
+    // states whether the server is currently connected to a client.
+    bool in_connection;
+    // holds the ip of the client that the application is currently bonded to.
+    std::string ip_bond;
+
     // sets up a server used to listen for and accept commands from remote clients
-
-    App *app_ptr;
-
     SOCKET s , new_socket;
     struct sockaddr_in server , client;
     socklen_t c;
-    std::string final_message = "DEFAULT";
     unsigned short PORT = 7890;
     int recv_size;
     char recv_buf[DEFAULT_BUFLEN] = {0};   // Initialises all elements to null.
@@ -81,6 +82,14 @@ public:
     RemoteServer();
 
     void run();
+
+    void set_in_connection_value(bool value);
+
+    bool is_in_connection();
+
+    void set_ip_bond_address(std::string ip);
+
+    std::string get_ip_bond_address();
 
     void server_reply(nlohmann::json json_msg);
 
