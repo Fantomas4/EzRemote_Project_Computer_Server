@@ -2,12 +2,8 @@
 // Created by Sierra Kilo on 07-Aug-18.
 //
 
-#include "App.h"
-
-
-
-
 #include <iostream>
+#include <future>
 #include "MessageAnalysis.h"
 
 #include "nlohmann/json.hpp"
@@ -30,11 +26,18 @@ using namespace std;
 //
 //}
 
-void MessageAnalysis::run_thread(std::string received_msg) {
-    std::thread msg_analysis_thread(&MessageAnalysis::process_received_message);
+std::string MessageAnalysis::analyze_message(std::string received_msg) {
+    // create a thread for process_received_message() and receive the string it returns using future , move and promise
+    std::promise<std::string> p;
+    auto future = p.get_future();
+    std::thread msg_analysis_thread(&MessageAnalysis::process_received_message, std::move(p));
+    msg_analysis_thread.join();
+    std::string analysis_response = future.get();
+
+    return analysis_response;
 }
 
-void MessageAnalysis::process_received_message(std::string received_msg) {
+std::string MessageAnalysis::process_received_message(std::string received_msg) {
 
     cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 
@@ -45,17 +48,16 @@ void MessageAnalysis::process_received_message(std::string received_msg) {
     if (request == "make_connection") {
         cout << "--------------VRIKA make_connection ---------" << endl;
         // check whether the application is already connected to a client
-        if (!app_ptr->is_in_connection()) {
+        if (!RemoteServer::is_in_connection()) {
             // server accepts the connection
-            app_ptr->set_in_connection_to_true();
-
+            RemoteServer::set_in_connection_value(true);
             nlohmann::json msg_data = json_msg["data"];
-            app_ptr->set_ip_bond_address(msg_data["ip"]);
+            RemoteServer::set_ip_bond_address(msg_data["ip"]);
 
-            // prepare the response to the client
+            // prepare the json response
             map<string, string> data;
 
-            nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
+            nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
 
             cout << "Message Analysis is preparing to send reply to client..." << endl;
             // send the response to the client

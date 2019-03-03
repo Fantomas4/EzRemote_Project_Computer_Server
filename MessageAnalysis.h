@@ -9,21 +9,22 @@
 
 
 // forward declaration
-class App;
+class RemoteServer;
 
 
 
 class MessageAnalysis {
 
 private:
-    void process_received_message(std::string received_msg);
+    std::string process_received_message(std::string received_msg);
 
 
 public:
 
 //    MessageAnalysis(std::string received_msg);
 
-    static void run_thread(std::string received_msg);
+
+    std::string analyze_message(std::string received_msg);
 };
 
 

@@ -83,17 +83,15 @@ public:
 
     void run();
 
-    void set_in_connection_value(bool value);
-
-    bool is_in_connection();
-
-    void set_ip_bond_address(std::string ip);
-
-    std::string get_ip_bond_address();
-
     void server_reply(nlohmann::json json_msg);
 
+    static void set_in_connection_value(bool value);
 
+    static bool is_in_connection();
+
+    static void set_ip_bond_address(std::string ip);
+
+    static std::string get_ip_bond_address();
 };
 
 
