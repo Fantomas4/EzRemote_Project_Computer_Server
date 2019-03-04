@@ -8,8 +8,6 @@
 #include "nlohmann/json.hpp"
 #include <iostream>
 
-// forward declaration
-class CommandExec;
 
 #ifdef _WIN32
 
@@ -39,10 +37,6 @@ typedef int SOCKET;
 #define DEFAULT_BUFLEN 1000
 
 #include "MessageAnalysis.h"
-
-// forward declaration
-class App;
-
 
 class RemoteServer {
 

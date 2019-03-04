@@ -7,12 +7,6 @@
 
 #include <thread>
 
-
-// forward declaration
-class RemoteServer;
-
-
-
 class MessageAnalysis {
 
 private:

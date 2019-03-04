@@ -13,15 +13,15 @@ RemoteServer::RemoteServer() {
     std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEFAULT CONSTRUCTOR *******************" << std::endl;
 }
 
-RemoteServer::RemoteServer(App *app_obj) {
-
-    std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ CUSTOM CONSTRUCTOR *******************" << std::endl;
-
-    this->app_ptr = app_obj;
-
-    this->final_message = "CUSTOM CONSTRUCTOR";
-
-}
+//RemoteServer::RemoteServer(App *app_obj) {
+//
+//    std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ CUSTOM CONSTRUCTOR *******************" << std::endl;
+//
+//    this->app_ptr = app_obj;
+//
+//    this->final_message = "CUSTOM CONSTRUCTOR";
+//
+//}
 
 int RemoteServer::sockInit() {
 #ifdef _WIN32
