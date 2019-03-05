@@ -71,21 +71,19 @@ private:
 
 
 public:
-    explicit RemoteServer(App *app_obj);
-
     RemoteServer();
 
     void run();
 
     void server_reply(nlohmann::json json_msg);
 
-    static void set_in_connection_value(bool value);
+    void set_in_connection_value(bool value);
 
-    static bool is_in_connection();
+    bool is_in_connection();
 
-    static void set_ip_bond_address(std::string ip);
+    void set_ip_bond_address(std::string ip);
 
-    static std::string get_ip_bond_address();
+    std::string get_ip_bond_address();
 };
 
 
