@@ -23,6 +23,12 @@ RemoteServer::RemoteServer() {
 //
 //}
 
+RemoteServer& RemoteServer::getInstance() {
+    static RemoteServer instance; // Guaranteed to be destroyed.
+                                  // Instantiated on first use.
+    return instance;
+}
+
 int RemoteServer::sockInit() {
 #ifdef _WIN32
     WSADATA wsa_data;
@@ -190,7 +196,7 @@ void RemoteServer::listen_thread() {
 
 
 
-
+            #ifdef _WIN32
 
             // Uh oh!  Something bad happened.  Let's
             // get the error code...
@@ -225,6 +231,8 @@ void RemoteServer::listen_thread() {
             // and it does so using LocalAlloc
             // Gotcha!  I guess.
 
+            #endif
+
 
 
         } else {
@@ -240,7 +248,7 @@ void RemoteServer::listen_thread() {
             std::cout << "================ Ftiaxnw thread gia message analysis ========================" << std::endl;
 
             // https://en.cppreference.com/w/cpp/container/vector/emplace_back?fbclid=IwAR3ndX0Q_Ar04zBdiaXJizIvjO6drKG1nxJ1EnIgyC5P35HJl15BW5L424U
-            msg_analysis_threads.emplace_back(app_ptr, s_received_msg);
+            msg_analysis_threads.emplace_back(s_received_msg);
 
             if (terminate_server) {
                 break;
@@ -261,19 +269,19 @@ void RemoteServer::listen_thread() {
     sockQuit();
 }
 
-bool RemoteServer::is_in_connection() {
+bool RemoteServer::isInConnection() {
     return in_connection;
 }
 
-std::string RemoteServer::get_ip_bond_address() {
+std::string RemoteServer::getIpBondAddress() {
     return ip_bond;
 }
 
-void RemoteServer::set_ip_bond_address(std::string ip) {
+void RemoteServer::setIpBondAddress(std::string ip) {
     ip_bond = ip;
 }
 
-void RemoteServer::set_in_connection_value(bool value) {
+void RemoteServer::setInConnectionValue(bool value) {
     in_connection = true;
 }
 
@@ -283,7 +291,7 @@ void RemoteServer::run() {
 
 }
 
-void RemoteServer::server_reply(nlohmann::json json_msg) {
+void RemoteServer::serverReply(nlohmann::json json_msg) {
 
     using namespace std;
 

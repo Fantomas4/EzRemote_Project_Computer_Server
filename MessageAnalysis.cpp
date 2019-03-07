@@ -48,11 +48,11 @@ std::string MessageAnalysis::process_received_message(std::string received_msg) 
     if (request == "make_connection") {
         cout << "--------------VRIKA make_connection ---------" << endl;
         // check whether the application is already connected to a client
-        if (!RemoteServer::is_in_connection()) {
+        if (!RemoteServer::getInstance().isInConnection()) {
             // server accepts the connection
-            RemoteServer::set_in_connection_value(true);
+            RemoteServer::getInstance().setInConnectionValue(true);
             nlohmann::json msg_data = json_msg["data"];
-            RemoteServer::set_ip_bond_address(msg_data["ip"]);
+            RemoteServer::getInstance().setIpBondAddress(msg_data["ip"]);
 
             // prepare the json response
             map<string, string> data;
@@ -61,7 +61,7 @@ std::string MessageAnalysis::process_received_message(std::string received_msg) 
 
             cout << "Message Analysis is preparing to send reply to client..." << endl;
             // send the response to the client
-            app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+            RemoteServer::getInstance().serverReply(json_msg);
 
         }
 
@@ -83,10 +83,10 @@ std::string MessageAnalysis::process_received_message(std::string received_msg) 
         // prepare the response to the client
         map<string, string> data;
 
-        nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
+        nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
 
         // send the response to the client
-        app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+        RemoteServer::getInstance().serverReply(json_msg);
 
         app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->start_shutdown_timer(TimeObject(hours, mins, secs, msecs));
 
@@ -98,7 +98,7 @@ std::string MessageAnalysis::process_received_message(std::string received_msg) 
             // prepare the response to the client
             map<string, string> data;
 
-            nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
+            nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
 
             // send the response to the client
             app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);

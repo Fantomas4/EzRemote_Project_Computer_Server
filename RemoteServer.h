@@ -2,6 +2,11 @@
 // Created by Sierra Kilo on 06-Aug-18.
 //
 
+
+// Singleton classed based on sample from:
+// https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
+
+
 #ifndef EZREMOTE_PROJECT_REMOTESERVER_H
 #define EZREMOTE_PROJECT_REMOTESERVER_H
 
@@ -69,21 +74,29 @@ private:
     void listen_thread();
 
 
+    RemoteServer(){};
+
 
 public:
-    RemoteServer();
+
+    RemoteServer(RemoteServer const&) = delete;
+
+    void operator=(RemoteServer const&) = delete;
+
+    static RemoteServer& getInstance();
 
     void run();
 
-    void server_reply(nlohmann::json json_msg);
+    void serverReply(nlohmann::json json_msg);
 
-    void set_in_connection_value(bool value);
+    void setInConnectionValue(bool value);
 
-    bool is_in_connection();
+    bool isInConnection();
 
-    void set_ip_bond_address(std::string ip);
+    void setIpBondAddress(std::string ip);
 
-    std::string get_ip_bond_address();
+    std::string getIpBondAddress();
+
 };
 
 

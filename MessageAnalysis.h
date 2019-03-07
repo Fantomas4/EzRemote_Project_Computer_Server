@@ -6,6 +6,8 @@
 #define EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 
 #include <thread>
+#include "RemoteServer.h"
+#include "JSON.h"
 
 class MessageAnalysis {
 

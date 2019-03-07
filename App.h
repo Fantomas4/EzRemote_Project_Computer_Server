@@ -10,12 +10,11 @@
 
 
 #include "RemoteServer.h"
-#include "CommandExec.h"
 
 class App {
 
 private:
-    RemoteServer remote_server;
+
 
 public:
     App();

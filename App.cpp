@@ -9,7 +9,8 @@
 
 
 App::App() {
-    remote_server = RemoteServer(this);
-    remote_server.run();
+//    remote_server = RemoteServer(this);
+//    remote_server.run();
+    RemoteServer::getInstance().run();
 };
 
