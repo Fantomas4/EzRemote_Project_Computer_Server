@@ -23,6 +23,10 @@ HandshakeHandler::HandshakeHandler(RemoteServer* remoteServerPtr) {
     this->handshakeListener();
 }
 
+HandshakeHandler::~HandshakeHandler() {
+    serverQuit();
+}
+
 void HandshakeHandler::handshakeListener() {
 
     SOCKET s;
@@ -96,6 +100,7 @@ void HandshakeHandler::handshakeListener() {
 
         // set the inConnection status and ip bond at the RemoteServer
         this->remoteServerPtr->setInConnectionValue(true);
+//        this->remoteServerPtr->setIpBondAddress()
 
         if (newSocket == 0) {
             // 0 means INVALID_SOCKET in WinSock

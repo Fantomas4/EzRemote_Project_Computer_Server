@@ -4,7 +4,7 @@
 
 #include "JSON.h"
 
-nlohmann::json JSON::prepare_json_reply(std::string status, std::map<std::string, std::string> data) {
+nlohmann::json JSON::prepareJsonReply(std::string status, std::map<std::string, std::string> data) {
 
     nlohmann::json json_msg;
 
@@ -16,6 +16,6 @@ nlohmann::json JSON::prepare_json_reply(std::string status, std::map<std::string
     return json_msg;
 }
 
-//nlohmann::json JSON::convert_string_to_json(std::string received_msg) {
-//    nlohmann::json json_msg = nlohmann::json::parse(received_msg);
-//};
+std::string JSON::convertJsonToString(nlohmann::json jsonObj) {
+    return jsonObj.dump(4);
+}

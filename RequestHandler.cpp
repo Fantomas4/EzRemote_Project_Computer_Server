@@ -3,11 +3,13 @@
 //
 
 #include "RequestHandler.h"
+#include "JSON.h"
 
 
 #include <cstdio>
 #include <thread>
 #include <mutex>
+#include <iostream>
 
 //#include "ConnectionHandler.h"
 
@@ -149,7 +151,6 @@ int RequestHandler::Recv(char *recv_buf, int recv_buf_size) {
 
 void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
 
-    using namespace std;
 
     // converts the json data from outbound_json_buffer to a string,
     // then converts the string to const char* and assigns it to outbound_msg
@@ -158,21 +159,21 @@ void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
     // c_str() returns the contents of the string as a const char*
     // and the pointer it returns is valid as long as the given string object exists.
 
-    std::string temp_s = json_msg.dump(4);
+    std::string temp_s = JSON::convertJsonToString();
 
     const char *outbound_msg = temp_s.c_str();
 
 //    cout << "***********************strlen(outbound_msg): " << strlen(outbound_msg) << endl;
-    cout << "server outbound_msg is: " << endl;
+    std::cout << "server outbound_msg is: " << std::endl;
 
     for (int i=0; i<strlen(outbound_msg); i++) {
-        cout << outbound_msg[i];
+        std::cout << outbound_msg[i];
     }
 
-    send(this->new_socket , outbound_msg, strlen(outbound_msg) , 0);
+    send(this->clientSocket , outbound_msg, strlen(outbound_msg) , 0);
 
-    cout << "\n\n";
+    std::cout << "\n\n";
 
 //    cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
-    cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
+    std::cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }

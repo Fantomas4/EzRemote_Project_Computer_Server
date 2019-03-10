@@ -20,6 +20,8 @@ private:
 
 public:
     HandshakeHandler(RemoteServer* remoteServerPtr);
+
+    ~HandshakeHandler();
 };
 
 

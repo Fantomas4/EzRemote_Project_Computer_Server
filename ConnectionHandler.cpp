@@ -9,9 +9,6 @@ ConnectionHandler::ConnectionHandler() {
     std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEFAULT CONSTRUCTOR *******************" << std::endl;
 }
 
-ConnectionHandler::~ConnectionHandler() {
-    serverQuit();
-}
 
 //ConnectionHandler::ConnectionHandler(App *app_obj) {
 //
