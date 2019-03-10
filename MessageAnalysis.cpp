@@ -14,30 +14,22 @@ using namespace std;
 // Deleted copy constructor as a preemptive measure.
 //MessageAnalysis::MessageAnalysis(const MessageAnalysis&) = delete;
 
-//MessageAnalysis::MessageAnalysis(std::string received_msg) {
-//
-//    cout << "received_msg inside constructor of MessageAnalysis is: " << received_msg << endl;
-//
-//    // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
-//    // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
-//    // To call a member function, the first argument to std::bind must be a pointer, reference, or
-//    // shared pointer to an object of the appropriate type
-//    this->run_thread(std);
-//
-//}
+MessageAnalysis::MessageAnalysis() {
+    // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
+    // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
+    // To call a member function, the first argument to std::bind must be a pointer, reference, or
+    // shared pointer to an object of the appropriate type
+    commandExec = CommandExec();
 
-std::string MessageAnalysis::analyze_message(std::string received_msg) {
-    // create a thread for process_received_message() and receive the string it returns using future , move and promise
-    std::promise<std::string> p;
-    auto future = p.get_future();
-    std::thread msg_analysis_thread(&MessageAnalysis::process_received_message, std::move(p));
-    msg_analysis_thread.join();
-    std::string analysis_response = future.get();
-
-    return analysis_response;
 }
 
-std::string MessageAnalysis::process_received_message(std::string received_msg) {
+//void MessageAnalysis::run_thread(std::string received_msg) {
+//    std::thread analysisThread = thread(&MessageAnalysis::process_received_message, received_msg);
+//    analysisThread.detach();
+//}
+
+
+nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg) {
 
     cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 
@@ -48,11 +40,11 @@ std::string MessageAnalysis::process_received_message(std::string received_msg) 
     if (request == "make_connection") {
         cout << "--------------VRIKA make_connection ---------" << endl;
         // check whether the application is already connected to a client
-        if (!RemoteServer::getInstance().isInConnection()) {
+        if (!ConnectionHandler::getInstance().isInConnection()) {
             // server accepts the connection
-            RemoteServer::getInstance().setInConnectionValue(true);
+            ConnectionHandler::getInstance().setInConnectionValue(true);
             nlohmann::json msg_data = json_msg["data"];
-            RemoteServer::getInstance().setIpBondAddress(msg_data["ip"]);
+            ConnectionHandler::getInstance().setIpBondAddress(msg_data["ip"]);
 
             // prepare the json response
             map<string, string> data;
@@ -61,7 +53,7 @@ std::string MessageAnalysis::process_received_message(std::string received_msg) 
 
             cout << "Message Analysis is preparing to send reply to client..." << endl;
             // send the response to the client
-            RemoteServer::getInstance().serverReply(json_msg);
+            ConnectionHandler::getInstance().serverReply(json_msg);
 
         }
 
@@ -86,22 +78,22 @@ std::string MessageAnalysis::process_received_message(std::string received_msg) 
         nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
 
         // send the response to the client
-        RemoteServer::getInstance().serverReply(json_msg);
+        ConnectionHandler::getInstance().serverReply(json_msg);
 
-        app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->start_shutdown_timer(TimeObject(hours, mins, secs, msecs));
+        commandExec.get_shutdown_command_obj_ptr()->start_shutdown_timer(TimeObject(hours, mins, secs, msecs));
 
     } else if (request == "cancel_shutdown_system_command") {
 
-        app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->cancel_shutdown_timer();
+        commandExec.get_shutdown_command_obj_ptr()->cancel_shutdown_timer();
 
-        if (app_ptr->get_commandexec_obj_ptr()->get_shutdown_command_obj_ptr()->get_terminate_timer_flag_value()) {
+        if (commandExec.get_shutdown_command_obj_ptr()->get_terminate_timer_flag_value()) {
             // prepare the response to the client
             map<string, string> data;
 
             nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
 
             // send the response to the client
-            app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+            ConnectionHandler::getInstance().serverReply(json_msg);
         }
     }
 }

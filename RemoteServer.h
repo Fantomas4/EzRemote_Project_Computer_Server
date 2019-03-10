@@ -1,47 +1,13 @@
 //
-// Created by Sierra Kilo on 06-Aug-18.
+// Created by Sierra Kilo on 09-Mar-19.
 //
-
-
-// Singleton classed based on sample from:
-// https://stackoverflow.com/questions/1008019/c-singleton-design-pattern
-
 
 #ifndef EZREMOTE_PROJECT_REMOTESERVER_H
 #define EZREMOTE_PROJECT_REMOTESERVER_H
 
-#include "nlohmann/json.hpp"
-#include <iostream>
+#include <string>
 
-
-#ifdef _WIN32
-
-#include<io.h>
-#include<stdio.h>
-#include<winsock2.h>
-
-#include <windows.h>
-#include <ws2tcpip.h>
-#include <thread>
-#include <vector>
-
-#else
-
-/* Assume that any non-Windows platform uses POSIX-style sockets instead. */
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */
-#include <unistd.h> /* Needed for close() */
-#include <thread>
-
-typedef int SOCKET;
-
-#endif
-
-//#define DEFAULT_BUFLEN 512
-#define DEFAULT_BUFLEN 1000
-
-#include "MessageAnalysis.h"
+#include "HandshakeHandler.h"
 
 class RemoteServer {
 
@@ -51,43 +17,11 @@ private:
     // holds the ip of the client that the application is currently bonded to.
     std::string ip_bond;
 
-    // sets up a server used to listen for and accept commands from remote clients
-    SOCKET s , new_socket;
-    struct sockaddr_in server , client;
-    socklen_t c;
-    unsigned short PORT = 7890;
-    int recv_size;
-    char recv_buf[DEFAULT_BUFLEN] = {0};   // Initialises all elements to null.
-    int recv_buf_len = DEFAULT_BUFLEN;
-    std::vector<MessageAnalysis> msg_analysis_threads;
-
-    bool terminate_server = false;
-
-    int sockInit();
-
-    int sockClose(SOCKET sock);
-
-    int sockQuit();
-
-    int Recv(char* recv_buf, int recv_buf_size);
-
-    void listen_thread();
-
-
-    RemoteServer(){};
+    HandshakeHandler handshakeHandler;
 
 
 public:
-
-    RemoteServer(RemoteServer const&) = delete;
-
-    void operator=(RemoteServer const&) = delete;
-
-    static RemoteServer& getInstance();
-
-    void run();
-
-    void serverReply(nlohmann::json json_msg);
+    RemoteServer();
 
     void setInConnectionValue(bool value);
 
@@ -96,7 +30,6 @@ public:
     void setIpBondAddress(std::string ip);
 
     std::string getIpBondAddress();
-
 };
 
 

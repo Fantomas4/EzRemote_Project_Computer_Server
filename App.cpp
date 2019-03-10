@@ -9,8 +9,8 @@
 
 
 App::App() {
-//    remote_server = RemoteServer(this);
+//    remote_server = ConnectionHandler(this);
 //    remote_server.run();
-    RemoteServer::getInstance().run();
+    ConnectionHandler::getInstance().run();
 };
 

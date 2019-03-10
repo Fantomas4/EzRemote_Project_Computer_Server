@@ -9,7 +9,7 @@
 #include "nlohmann/json.hpp"
 
 
-#include "RemoteServer.h"
+#include "ConnectionHandler.h"
 
 class App {
 
