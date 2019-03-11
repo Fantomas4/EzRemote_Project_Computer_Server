@@ -5,9 +5,13 @@
 #ifndef EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 #define EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 
+
+
 class ConnectionHandler;
 
 class RemoteServer;
+
+class RequestHandler;
 
 class HandshakeHandler:ConnectionHandler {
 
@@ -17,6 +21,8 @@ private:
     void handshakeListener();
 
     bool stopHandshakeListener;
+
+    RequestHandler* requestHandler;
 
 public:
     HandshakeHandler(RemoteServer* remoteServerPtr);

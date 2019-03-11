@@ -7,9 +7,9 @@
 
 
 #include <cstdio>
-#include <thread>
 #include <mutex>
 #include <iostream>
+#include <thread>
 
 //#include "ConnectionHandler.h"
 
@@ -17,6 +17,10 @@ RequestHandler::RequestHandler(SOCKET clientSocket) {
     this->clientSocket = clientSocket;
 }
 
+void RequestHandler::start() {
+    std::thread requestListenerThread = std::thread(&RequestHandler::requestListener, this);
+    requestListenerThread.detach();
+}
 
 void RequestHandler::requestListener() {
 

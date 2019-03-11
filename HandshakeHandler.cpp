@@ -5,6 +5,7 @@
 #include "HandshakeHandler.h"
 #include "ConnectionHandler.h"
 #include "RemoteServer.h"
+#include "RequestHandler.h"
 
 #ifdef _WIN32
 
@@ -19,11 +20,11 @@
 HandshakeHandler::HandshakeHandler(RemoteServer* remoteServerPtr) {
     this->remoteServerPtr = remoteServerPtr;
     this->stopHandshakeListener = false;
-
     this->handshakeListener();
 }
 
 HandshakeHandler::~HandshakeHandler() {
+    delete this->requestHandler;
     serverQuit();
 }
 
@@ -107,8 +108,7 @@ void HandshakeHandler::handshakeListener() {
             printf("accept failed!");
         }
 
-//        std::thread requestListenerThread = std::thread(RequestHandler(), new_socket);
-//        requestListenerThread.detach();
-
+        this->requestHandler = new RequestHandler(newSocket);
+        this->requestHandler->start();
     }
 }

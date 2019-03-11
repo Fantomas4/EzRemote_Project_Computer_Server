@@ -26,6 +26,8 @@ private:
 public:
 
     RequestHandler(SOCKET clientSocket);
+
+    void start();
 };
 
 
