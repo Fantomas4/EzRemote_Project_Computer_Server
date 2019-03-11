@@ -15,6 +15,7 @@
 
 RequestHandler::RequestHandler(SOCKET clientSocket) {
     this->clientSocket = clientSocket;
+    this->messageAnalysis = MessageAnalysis();
 }
 
 void RequestHandler::start() {
@@ -154,6 +155,10 @@ int RequestHandler::Recv(char *recv_buf, int recv_buf_size) {
 
 
 void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
+
+
+    // create a new thread to analyze the message
+
 
 
     // converts the json data from outbound_json_buffer to a string,

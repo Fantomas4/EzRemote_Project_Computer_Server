@@ -8,6 +8,7 @@
 
 #include <winsock2.h>
 #include <string>
+#include "MessageAnalysis.h"
 
 class ConnectionHandler;
 
@@ -16,6 +17,8 @@ class RequestHandler:ConnectionHandler {
 private:
 
     SOCKET clientSocket;
+
+    MessageAnalysis messageAnalysis;
 
     void requestListener();
 
