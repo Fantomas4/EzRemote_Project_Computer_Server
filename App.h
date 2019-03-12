@@ -5,16 +5,17 @@
 #ifndef EZREMOTE_PROJECT_APP_H
 #define EZREMOTE_PROJECT_APP_H
 
-#include <iostream>
-#include "nlohmann/json.hpp"
-
-
-#include "ConnectionHandler.h"
+#include "RemoteServer.h"
 
 class App {
 
+private:
+    RemoteServer remoteServer;
+
 public:
     App();
+
+    void runRemoteServer();
 
 };
 
