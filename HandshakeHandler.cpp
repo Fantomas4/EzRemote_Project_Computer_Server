@@ -3,7 +3,6 @@
 //
 
 #include "HandshakeHandler.h"
-#include "ConnectionHandler.h"
 #include "RemoteServer.h"
 #include "RequestHandler.h"
 

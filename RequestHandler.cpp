@@ -4,8 +4,6 @@
 
 #include "RequestHandler.h"
 #include "JSON.h"
-#include "ConnectionHandler.h"
-
 
 #include <cstdio>
 #include <mutex>

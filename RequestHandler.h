@@ -9,8 +9,7 @@
 #include <winsock2.h>
 #include <string>
 #include "MessageAnalysis.h"
-
-class ConnectionHandler;
+#include "ConnectionHandler.h"
 
 class RequestHandler:ConnectionHandler {
 

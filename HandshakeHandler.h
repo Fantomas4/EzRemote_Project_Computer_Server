@@ -6,8 +6,7 @@
 #define EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 
 
-
-class ConnectionHandler;
+#include "ConnectionHandler.h"
 
 class RemoteServer;
 
