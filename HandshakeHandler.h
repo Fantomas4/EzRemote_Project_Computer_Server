@@ -19,6 +19,8 @@ private:
 
     void handshakeListener();
 
+    void rejectNewConnection(SOCKET rejSocket);
+
     bool stopHandshakeListener;
 
     RequestHandler* requestHandler;

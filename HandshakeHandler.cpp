@@ -5,6 +5,7 @@
 #include "HandshakeHandler.h"
 #include "RemoteServer.h"
 #include "RequestHandler.h"
+#include "JSON.h"
 
 #ifdef _WIN32
 
@@ -25,6 +26,16 @@ HandshakeHandler::HandshakeHandler(RemoteServer* remoteServerPtr) {
 HandshakeHandler::~HandshakeHandler() {
     delete this->requestHandler;
     serverQuit();
+}
+
+void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
+
+    std::map<string, string> msgData;
+    msgData["error_message"] = "Connection Denied! Server is already in a connection with a client.";
+
+    const char *outboundMsg = JSON::convertJsonToString(JSON::prepareJsonReply("error", msgData)).c_str();
+
+    send(rejSocket, outboundMsg, strlen(outboundMsg), 0);
 }
 
 void HandshakeHandler::handshakeListener() {
@@ -96,18 +107,28 @@ void HandshakeHandler::handshakeListener() {
     while (!this->stopHandshakeListener) {
         SOCKET newSocket = accept(s , (struct sockaddr *)&client, &c);
 
-        printf("A new connection has been accepted!\n");
+        // if the server is not already dedicated to a connection with a client
+        if (!this->remoteServerPtr->isInConnection()) {
+            printf("A new connection has been accepted!\n");
 
-        // set the inConnection status and ip bond at the RemoteServer
-        this->remoteServerPtr->setInConnectionValue(true);
+            // set the inConnection status and ip bond at the RemoteServer
+            this->remoteServerPtr->setInConnectionValue(true);
 //        this->remoteServerPtr->setIpBondAddress()
 
-        if (newSocket == 0) {
-            // 0 means INVALID_SOCKET in WinSock
-            printf("accept failed!");
-        }
+            if (newSocket == 0) {
+                // 0 means INVALID_SOCKET in WinSock
+                printf("accept failed!");
+            }
 
-        this->requestHandler = new RequestHandler(newSocket);
-        this->requestHandler->start();
+            this->requestHandler = new RequestHandler(newSocket);
+            this->requestHandler->start();
+        } else {
+            // if the server is already in a connection with a client,
+            // reject the connection request
+
+            rejectNewConnection(newSocket);
+
+
+        }
     }
 }
