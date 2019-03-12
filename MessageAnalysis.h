@@ -5,22 +5,19 @@
 #ifndef EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 #define EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 
-//#include <thread>
-//#include "ConnectionHandler.h"
-//#include "JSON.h"
-//#include "CommandExec.h"
 
-//class ConnectionHandler;
+#include "nlohmann/json.hpp"
+#include "CommandExec.h"
 
 class MessageAnalysis {
 
 private:
+    bool* terminateRequestListener;
     CommandExec commandExec;
 
 
 public:
-    MessageAnalysis();
-//    void run_thread(std::string);
+    MessageAnalysis(bool* terminateRequestListener);
 
     nlohmann::json processReceivedMessage(std::string received_msg);
 

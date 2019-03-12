@@ -3,10 +3,11 @@
 //
 
 #include <iostream>
-#include <future>
-#include "MessageAnalysis.h"
 
+#include "MessageAnalysis.h"
 #include "nlohmann/json.hpp"
+#include "TimeObject.h"
+#include "JSON.h"
 
 using namespace std;
 
@@ -14,12 +15,13 @@ using namespace std;
 // Deleted copy constructor as a preemptive measure.
 //MessageAnalysis::MessageAnalysis(const MessageAnalysis&) = delete;
 
-MessageAnalysis::MessageAnalysis() {
+MessageAnalysis::MessageAnalysis(bool* terminateRequestListener) {
     // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
     // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
     // To call a member function, the first argument to std::bind must be a pointer, reference, or
     // shared pointer to an object of the appropriate type
     commandExec = CommandExec();
+    this->terminateRequestListener = terminateRequestListener;
 
 }
 
@@ -33,38 +35,20 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
 
     cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 
-    nlohmann::json json_msg = nlohmann::json::parse(received_msg);
+    nlohmann::json jsonReplyMsg;
 
-    string request = json_msg["request"];
+    nlohmann::json jsonReceivedMsg = nlohmann::json::parse(received_msg);
 
-    if (request == "make_connection") {
-        cout << "--------------VRIKA make_connection ---------" << endl;
-        // check whether the application is already connected to a client
-        if (!ConnectionHandler::getInstance().isInConnection()) {
-            // server accepts the connection
-            ConnectionHandler::getInstance().setInConnectionValue(true);
-            nlohmann::json msg_data = json_msg["data"];
-            ConnectionHandler::getInstance().setIpBondAddress(msg_data["ip"]);
+    string request = jsonReceivedMsg["request"];
 
-            // prepare the json response
-            map<string, string> data;
-
-            nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
-
-            cout << "Message Analysis is preparing to send reply to client..." << endl;
-            // send the response to the client
-            ConnectionHandler::getInstance().serverReply(json_msg);
-
-        }
-
-    } else if (request == "execute_shutdown_system_command") {
+    if (request == "execute_shutdown_system_command") {
         // extract string data from the json message
-        nlohmann::json msg_data = json_msg["data"];
+        nlohmann::json msgData = jsonReceivedMsg["data"];
 
-        string s_hrs = msg_data["hours"];
-        string s_mns = msg_data["mins"];
-        string s_secs = msg_data["secs"];
-        string s_msecs = msg_data["msecs"];
+        string s_hrs = msgData["hours"];
+        string s_mns = msgData["mins"];
+        string s_secs = msgData["secs"];
+        string s_msecs = msgData["msecs"];
 
         // stoul converts the string from the temp variables above to the wanted unsigned integer type.
         unsigned int hours = std::stoul(s_hrs);
@@ -75,25 +59,21 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
         // prepare the response to the client
         map<string, string> data;
 
-        nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
+        jsonReplyMsg = JSON::prepareJsonReply("success", data);
 
-        // send the response to the client
-        ConnectionHandler::getInstance().serverReply(json_msg);
-
-        commandExec.get_shutdown_command_obj_ptr()->start_shutdown_timer(TimeObject(hours, mins, secs, msecs));
+        commandExec.getShutdownCommandObjPtr()->start_shutdown_timer(TimeObject(hours, mins, secs, msecs));
 
     } else if (request == "cancel_shutdown_system_command") {
 
-        commandExec.get_shutdown_command_obj_ptr()->cancel_shutdown_timer();
+        commandExec.getShutdownCommandObjPtr()->cancel_shutdown_timer();
 
-        if (commandExec.get_shutdown_command_obj_ptr()->get_terminate_timer_flag_value()) {
+        if (commandExec.getShutdownCommandObjPtr()->get_terminate_timer_flag_value()) {
             // prepare the response to the client
             map<string, string> data;
 
-            nlohmann::json json_msg = JSON::prepare_json_reply("success", data);
-
-            // send the response to the client
-            ConnectionHandler::getInstance().serverReply(json_msg);
+            jsonReplyMsg = JSON::prepareJsonReply("success", data);
         }
     }
+
+    return jsonReplyMsg;
 }

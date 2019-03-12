@@ -4,6 +4,7 @@
 
 #include "RequestHandler.h"
 #include "JSON.h"
+#include "ConnectionHandler.h"
 
 
 #include <cstdio>
@@ -13,9 +14,9 @@
 
 //#include "ConnectionHandler.h"
 
-RequestHandler::RequestHandler(SOCKET clientSocket) {
+RequestHandler::RequestHandler(SOCKET clientSocket):messageAnalysis(&terminateRequestListener) {
     this->clientSocket = clientSocket;
-    this->messageAnalysis = MessageAnalysis();
+    this->terminateRequestListener = false;
 }
 
 void RequestHandler::start() {
@@ -92,16 +93,18 @@ void RequestHandler::requestListener() {
 //            // https://en.cppreference.com/w/cpp/container/vector/emplace_back?fbclid=IwAR3ndX0Q_Ar04zBdiaXJizIvjO6drKG1nxJ1EnIgyC5P35HJl15BW5L424U
 //            messageAnalysis.run_thread(s_received_msg);
 
-            std::thread requestHandler = std::thread(&ConnectionHandler::handleRequestAndReply, s_received_msg);
-            requestHandler.detach();
+//            std::thread requestHandler = std::thread(&ConnectionHandler::handleRequestAndReply, s_received_msg);
+//            requestHandler.detach();
 
-            if (terminate_server) {
+            handleRequestAndReply(s_received_msg);
+
+            if (this->terminateRequestListener) {
                 break;
             }
         }
     }
 
-    sockClose(this->clientSocket);
+    ConnectionHandler::sockClose(this->clientSocket);
 }
 
 
@@ -156,11 +159,6 @@ int RequestHandler::Recv(char *recv_buf, int recv_buf_size) {
 
 void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
 
-
-    // create a new thread to analyze the message
-
-
-
     // converts the json data from outbound_json_buffer to a string,
     // then converts the string to const char* and assigns it to outbound_msg
     //
@@ -168,7 +166,7 @@ void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
     // c_str() returns the contents of the string as a const char*
     // and the pointer it returns is valid as long as the given string object exists.
 
-    std::string temp_s = JSON::convertJsonToString();
+    std::string temp_s = JSON::convertJsonToString(this->messageAnalysis.processReceivedMessage(receivedMsg));
 
     const char *outbound_msg = temp_s.c_str();
 

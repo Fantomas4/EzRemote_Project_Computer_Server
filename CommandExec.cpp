@@ -21,7 +21,7 @@ CommandExec::CommandExec() {
 
 }
 
-ShutdownCommand* CommandExec::get_shutdown_command_obj_ptr() {
+ShutdownCommand* CommandExec::getShutdownCommandObjPtr() {
     return &shutdown_command;
 }
 

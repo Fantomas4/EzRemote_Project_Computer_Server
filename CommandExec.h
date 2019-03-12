@@ -25,7 +25,7 @@ private:
 public:
     CommandExec();
 
-    ShutdownCommand* get_shutdown_command_obj_ptr() ;
+    ShutdownCommand* getShutdownCommandObjPtr() ;
 
 //    map<string, string> static get_identification_info();
 

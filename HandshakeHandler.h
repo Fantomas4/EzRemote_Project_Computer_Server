@@ -16,7 +16,7 @@ class RequestHandler;
 class HandshakeHandler:ConnectionHandler {
 
 private:
-    RemoteServer* remoteServerPtr = nullptr;
+    RemoteServer* remoteServerPtr;
 
     void handshakeListener();
 
