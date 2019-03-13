@@ -28,6 +28,11 @@ typedef int SOCKET;
 class ConnectionHandler {
 
 protected:
+
+    int recvMsg(SOCKET recvSocket, char *recv_buf);
+
+    void sendMsg(SOCKET sendSocket, const char* outboundMsg);
+
     int sockInit();
 
     int sockClose(SOCKET sock);

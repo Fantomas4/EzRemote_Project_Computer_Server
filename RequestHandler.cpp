@@ -36,8 +36,8 @@ void RequestHandler::requestListener() {
         printf("****** Listen LOOP *********\n");
 
         // 0 means INVALID_SOCKET in WinSock
-
-        if((recv_size = Recv(recv_buf, recv_buf_len)) == -1) {
+        recv_size = ConnectionHandler::recvMsg(this->clientSocket, recv_buf);
+        if(recv_size == -1) {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
 
@@ -106,55 +106,6 @@ void RequestHandler::requestListener() {
 }
 
 
-
-std::mutex recv_buffer_mutex;
-
-int RequestHandler::Recv(char *recv_buf, int recv_buf_size) {
-
-    // empty the recv_buf buffer by filling it with 0 (null)
-    *recv_buf = {0};
-
-    // For the client - server communication, "\0" (null) is used as delimiter. Since strlen("\0) is 0,
-    // the message part that contains the delimiter (last message part) will cause the recv() function to
-    // return an integer representing the actual number of chars received (example: "ty\0" returns 4), while
-    // strlen() that ignores the null character will return an amount smaller than the chars actually received (for our example,
-    // it would return 2).
-
-    // temp_buf temporarily holds the last string message the recv() function has received from the client
-    int temp_buf_size = 1000;
-    char temp_buf[temp_buf_size];
-    std::string s_recv_buf;
-
-    int n = 0, total_size = 0;
-
-    do {
-
-        n = recv(this->clientSocket, temp_buf, temp_buf_size, 0);
-        total_size += n;
-
-        // *** new addition
-        if (n == 0) {
-            break;
-        }
-
-        // create a temporary string to store the recv_buf char array as a string.
-        s_recv_buf = recv_buf;
-        // add the new message part received to the string of the whole message
-        s_recv_buf += temp_buf;
-
-        // convert string to char array and copy it to the original recv_buf
-        recv_buffer_mutex.lock();
-        strcpy(recv_buf, s_recv_buf.c_str());
-        recv_buffer_mutex.unlock();
-
-    } while(strlen(temp_buf) == n);
-
-    printf("------------------------------ I return from Recv... -----------------------------------------\n");
-
-    return total_size;
-}
-
-
 void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
 
     // converts the json data from outbound_json_buffer to a string,
@@ -175,7 +126,9 @@ void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
         std::cout << outbound_msg[i];
     }
 
-    send(this->clientSocket , outbound_msg, strlen(outbound_msg) , 0);
+
+    //send the formatted message
+    ConnectionHandler::sendMsg(this->clientSocket, outbound_msg);
 
     std::cout << "\n\n";
 

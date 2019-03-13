@@ -7,6 +7,7 @@
 
 
 #include "ConnectionHandler.h"
+#include "JSON.h"
 
 class RemoteServer;
 
@@ -18,6 +19,8 @@ private:
     RemoteServer* remoteServerPtr;
 
     void handshakeListener();
+
+    void acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData);
 
     void rejectNewConnection(SOCKET rejSocket);
 

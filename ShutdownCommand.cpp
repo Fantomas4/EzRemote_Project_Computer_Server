@@ -25,17 +25,22 @@ ShutdownCommand::ShutdownCommand() {
     locker1.unlock();
 }
 
-bool ShutdownCommand::get_terminate_timer_flag_value() {
+void ShutdownCommand::startShutdownTimerThread(TimeObject time_data) {
+    std::thread shutdownTimerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
+    shutdownTimerThread.detach();
+}
+
+bool ShutdownCommand::getTerminateTimerFlagValue() {
     return terminate_timer_flag;
 }
 
-void ShutdownCommand::cancel_shutdown_timer() {
+void ShutdownCommand::cancelShutdownTimer() {
     std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
     terminate_timer_flag = true;
     locker1.unlock();
 }
 
-void ShutdownCommand::start_shutdown_timer(TimeObject time_data) {
+void ShutdownCommand::startShutdownTimer(TimeObject time_data) {
 
     std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
     terminate_timer_flag = false;
@@ -74,7 +79,7 @@ void ShutdownCommand::start_shutdown_timer(TimeObject time_data) {
 
 
 
-void ShutdownCommand::shutdown_command(){
+void ShutdownCommand::shutdownCommand(){
 #ifdef _WIN32
 
 

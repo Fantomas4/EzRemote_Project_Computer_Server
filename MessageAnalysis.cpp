@@ -61,13 +61,13 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
 
         jsonReplyMsg = JSON::prepareJsonReply("success", data);
 
-        commandExec.getShutdownCommandObjPtr()->start_shutdown_timer(TimeObject(hours, mins, secs, msecs));
+        commandExec.getShutdownCommandObjPtr()->startShutdownTimerThread(TimeObject(hours, mins, secs, msecs));
 
     } else if (request == "cancel_shutdown_system_command") {
 
-        commandExec.getShutdownCommandObjPtr()->cancel_shutdown_timer();
+        commandExec.getShutdownCommandObjPtr()->cancelShutdownTimer();
 
-        if (commandExec.getShutdownCommandObjPtr()->get_terminate_timer_flag_value()) {
+        if (commandExec.getShutdownCommandObjPtr()->getTerminateTimerFlagValue()) {
             // prepare the response to the client
             map<string, string> data;
 

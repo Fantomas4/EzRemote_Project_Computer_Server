@@ -25,8 +25,6 @@ private:
 
     void requestListener();
 
-    int Recv(char* recv_buf, int recv_buf_size);
-
     void handleRequestAndReply(std::string receivedMsg);
 
 public:

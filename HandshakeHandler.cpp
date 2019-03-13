@@ -5,7 +5,6 @@
 #include "HandshakeHandler.h"
 #include "RemoteServer.h"
 #include "RequestHandler.h"
-#include "JSON.h"
 
 #ifdef _WIN32
 
@@ -28,14 +27,39 @@ HandshakeHandler::~HandshakeHandler() {
     serverQuit();
 }
 
+void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData) {
+    printf("A new connection has been accepted!\n");
+
+    // set the inConnection status and ip bond at the RemoteServer
+    this->remoteServerPtr->setInConnectionValue(true);
+    this->remoteServerPtr->setIpBondAddress(inMsgData["ip"]);
+
+    // send a success response to the client to inform him that the
+    // make_connection request has been accepted
+    std::map<string, string> outMsgData;
+
+    std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("success", outMsgData));
+    const char *outboundMsg = temp_s.c_str();
+
+    // giati den doyleyei??????????????????????
+//    const char *outboundMsg = (JSON::convertJsonToString(JSON::prepareJsonReply("success", outMsgData))).c_str();
+    ConnectionHandler::sendMsg(newSocket, outboundMsg);
+
+    // start the request handler for the accepted client
+    this->requestHandler = new RequestHandler(newSocket);
+    this->requestHandler->start();
+}
+
 void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
 
+
+    // reply to the client by sending an error response with the appropriate message
     std::map<string, string> msgData;
     msgData["error_message"] = "Connection Denied! Server is already in a connection with a client.";
 
     const char *outboundMsg = JSON::convertJsonToString(JSON::prepareJsonReply("error", msgData)).c_str();
 
-    send(rejSocket, outboundMsg, strlen(outboundMsg), 0);
+    ConnectionHandler::sendMsg(rejSocket, outboundMsg);
 }
 
 void HandshakeHandler::handshakeListener() {
@@ -107,28 +131,39 @@ void HandshakeHandler::handshakeListener() {
     while (!this->stopHandshakeListener) {
         SOCKET newSocket = accept(s , (struct sockaddr *)&client, &c);
 
-        // if the server is not already dedicated to a connection with a client
-        if (!this->remoteServerPtr->isInConnection()) {
-            printf("A new connection has been accepted!\n");
 
-            // set the inConnection status and ip bond at the RemoteServer
-            this->remoteServerPtr->setInConnectionValue(true);
-//        this->remoteServerPtr->setIpBondAddress()
+        // receive the first message the client sends after accept(),
+        // which by protocol is the "make_connection" request
+        #define DEFAULT_BUFLEN 1000
 
-            if (newSocket == 0) {
-                // 0 means INVALID_SOCKET in WinSock
-                printf("accept failed!");
-            }
+        int recv_size;
+        char recv_buf[DEFAULT_BUFLEN] = {0};
 
-            this->requestHandler = new RequestHandler(newSocket);
-            this->requestHandler->start();
+        recv_size = ConnectionHandler::recvMsg(newSocket, recv_buf);
+
+        if (recv_size == -1) {
+            // -1 means SOCKET_ERROR in WinSock
+            puts("Receive failed");
         } else {
-            // if the server is already in a connection with a client,
-            // reject the connection request
+            // receive was successful
 
-            rejectNewConnection(newSocket);
+            nlohmann::json jsonReceivedMsg = nlohmann::json::parse(recv_buf);
 
+            string request = jsonReceivedMsg["request"];
 
+            if (request == "make_connection") {
+
+                // if the server is not already dedicated to a connection with a client
+                if (!this->remoteServerPtr->isInConnection()) {
+                    acceptNewConnection(newSocket, jsonReceivedMsg["data"]);
+                } else {
+                    // if the server is already in a connection with a client,
+                    // reject the connection request
+                    rejectNewConnection(newSocket);
+                }
+            } else {
+                cout << "*** ERROR: The client has broken the defined protocol! ***" << endl;
+            }
         }
     }
 }
