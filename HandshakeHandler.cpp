@@ -155,11 +155,15 @@ void HandshakeHandler::handshakeListener() {
 
                 // if the server is not already dedicated to a connection with a client
                 if (!this->remoteServerPtr->isInConnection()) {
-                    acceptNewConnection(newSocket, jsonReceivedMsg["data"]);
+                    std::thread acceptNewConnectionThread(&HandshakeHandler::acceptNewConnection, this, newSocket, jsonReceivedMsg["data"]);
+                    acceptNewConnectionThread.detach();
+//                    acceptNewConnection(newSocket, jsonReceivedMsg["data"]);
                 } else {
                     // if the server is already in a connection with a client,
                     // reject the connection request
-                    rejectNewConnection(newSocket);
+                    std::thread rejectNewConnectionThread(&HandshakeHandler::rejectNewConnection, this, newSocket);
+                    rejectNewConnectionThread.detach();
+//                    rejectNewConnection(newSocket);
                 }
             } else {
                 cout << "*** ERROR: The client has broken the defined protocol! ***" << endl;
