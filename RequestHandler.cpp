@@ -41,42 +41,42 @@ void RequestHandler::requestListener() {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
 
-//            #ifdef _WIN32
-//
-//            // Uh oh!  Something bad happened.  Let's
-//            // get the error code...
-//            int errCode = WSAGetLastError();
-//
-//            // ..and the human readable error string!!
-//            // Interesting:  Also retrievable by net helpmsg 10060
-//            LPSTR errString = NULL;  // will be allocated and filled by FormatMessage
-//
-//            int size = FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-//                                      FORMAT_MESSAGE_FROM_SYSTEM, // use windows internal message table
-//                                      0,       // 0 since source is internal message table
-//                                      errCode, // this is the error code returned by WSAGetLastError()
-//                    // Could just as well have been an error code from generic
-//                    // Windows errors from GetLastError()
-//                                      0,       // auto-determine language to use
-//                                      (LPSTR)&errString, // this is WHERE we want FormatMessage
-//                    // to plunk the error string.  Note the
-//                    // peculiar pass format:  Even though
-//                    // errString is already a pointer, we
-//                    // pass &errString (which is really type LPSTR* now)
-//                    // and then CAST IT to (LPSTR).  This is a really weird
-//                    // trip up.. but its how they do it on msdn:
-//                    // http://msdn.microsoft.com/en-us/library/ms679351(VS.85).aspx
-//                                      0,                 // min size for buffer
-//                                      0 );               // 0, since getting message from system tables
-//            printf( "Error code %d:  %s\n\nMessage was %d bytes, in case you cared to know this.\n\n", errCode, errString, size ) ;
-//
-//            LocalFree( errString ) ; // if you don't do this, you will get an
-//            // ever so slight memory leak, since we asked
-//            // FormatMessage to FORMAT_MESSAGE_ALLOCATE_BUFFER,
-//            // and it does so using LocalAlloc
-//            // Gotcha!  I guess.
-//
-//            #endif
+            #ifdef _WIN32
+
+            // Uh oh!  Something bad happened.  Let's
+            // get the error code...
+            int errCode = WSAGetLastError();
+
+            // ..and the human readable error string!!
+            // Interesting:  Also retrievable by net helpmsg 10060
+            LPSTR errString = NULL;  // will be allocated and filled by FormatMessage
+
+            int size = static_cast<int>(FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                                      FORMAT_MESSAGE_FROM_SYSTEM, // use windows internal message table
+                                                  0,       // 0 since source is internal message table
+                                                      static_cast<DWORD>(errCode), // this is the error code returned by WSAGetLastError()
+                                // Could just as well have been an error code from generic
+                                // Windows errors from GetLastError()
+                                                  0,       // auto-determine language to use
+                                                  (LPSTR)&errString, // this is WHERE we want FormatMessage
+                                // to plunk the error string.  Note the
+                                // peculiar pass format:  Even though
+                                // errString is already a pointer, we
+                                // pass &errString (which is really type LPSTR* now)
+                                // and then CAST IT to (LPSTR).  This is a really weird
+                                // trip up.. but its how they do it on msdn:
+                                // http://msdn.microsoft.com/en-us/library/ms679351(VS.85).aspx
+                                                  0,                 // min size for buffer
+                                                  0 ));               // 0, since getting message from system tables
+            printf( "Error code %d:  %s\n\nMessage was %d bytes, in case you cared to know this.\n\n", errCode, errString, size ) ;
+
+            LocalFree( errString ) ; // if you don't do this, you will get an
+            // ever so slight memory leak, since we asked
+            // FormatMessage to FORMAT_MESSAGE_ALLOCATE_BUFFER,
+            // and it does so using LocalAlloc
+            // Gotcha!  I guess.
+
+            #endif
 
         } else {
             // receive was successful
