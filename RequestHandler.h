@@ -5,8 +5,10 @@
 #ifndef EZREMOTE_PROJECT_REQUESTHANDLER_H
 #define EZREMOTE_PROJECT_REQUESTHANDLER_H
 
+#ifdef _WIN32
+//#include <winsock2.h>
+#endif
 
-#include <winsock2.h>
 #include <string>
 #include "MessageAnalysis.h"
 #include "ConnectionHandler.h"

@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <cstring>
 #include "ConnectionHandler.h"
 
 ConnectionHandler::ConnectionHandler() {
