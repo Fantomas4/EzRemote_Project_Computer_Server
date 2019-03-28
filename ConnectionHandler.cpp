@@ -33,7 +33,7 @@ int ConnectionHandler::recvMsg(SOCKET recvSocket, char *recv_buf) {
     // empty the recv_buf buffer by filling it with 0 (null)
     *recv_buf = {0};
 
-    // For the client - server communication, "\0" (null) is used as delimiter. Since strlen("\0) is 0,
+    // For the client - server communication, "\0" (null) is used as delimiter. Since strlen("\0") is 0,
     // the message part that contains the delimiter (last message part) will cause the recv() function to
     // return an integer representing the actual number of chars received (example: "ty\0" returns 4), while
     // strlen() that ignores the null character will return an amount smaller than the chars actually received (for our example,
