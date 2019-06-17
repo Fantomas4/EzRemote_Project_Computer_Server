@@ -15,7 +15,7 @@ data: client_ip
 Server sends a JSON response:
 status is either "SUCCESS" if the new connection was accepted and established successfully, "FAIL" if there was a problem satisfying the request or "ERROR" if an error occured 
 in processing the request i.e an exception was thrown.
-data: <NONE> or an error message 
+data: <NONE> or a fail message string store in fail_message or an error message string stored in error_message 
 
 
 
@@ -31,8 +31,7 @@ data: hours, mins, secs, msecs
 Server sends a JSON response:
 status:  "SUCCESS" if the "Shutdown" command has been executed successfully, "FAIL" if there was a problem satisfying the request or "ERROR" if an error occured 
 in processing the request i.e an exception was thrown.
-data: <NONE> or an error message 
-
+data: <NONE> or a fail message string store in fail_message or an error message string stored in error_message 
 
 
 
@@ -47,7 +46,7 @@ data: <NONE>
 Server sends a JSON response:
 status:  "SUCCESS" if the "Shutdown" command currently in progress has been cancelled successfully, "FAIL" if there was a problem satisfying the request or "ERROR" if an error occured 
 in processing the request i.e an exception was thrown.
-data: <NONE> or an error message 
+data: <NONE> or a fail message string store in fail_message or an error message string stored in error_message 
 
 
 
