@@ -3,38 +3,48 @@
 //
 
 #include "CommandExec.h"
-#include "ShutdownCommand.h"
 #include <iostream>
 
 #ifdef __WIN32
-    #include <synchapi.h>
+#include <synchapi.h>
 #else
-    #include <unistd.h>
+#include <unistd.h>
 #endif
 
 
 using namespace std;
 
-CommandExec::CommandExec() {
+ShutdownCommand::ShutdownCommand() {
+//    std::atomic_init(&terminate_timer, false);
 
-void CommandExec::reset_terminate_timer_flag() {
+    // use unique lock for the asynchronous operation of changing the
+    // value for the terminate_timer_flag
+    mu_terminate_timer_flag = new std::mutex();
     std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
     terminate_timer_flag = false;
     locker1.unlock();
 }
 
-void CommandExec::terminate_shutdown_timer_thread() {
+void ShutdownCommand::startShutdownTimerThread(TimeObject time_data) {
+    std::thread shutdownTimerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
+    shutdownTimerThread.detach();
+}
+
+bool ShutdownCommand::getTerminateTimerFlagValue() {
+    return terminate_timer_flag;
+}
+
+void ShutdownCommand::cancelShutdownTimer() {
     std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
     terminate_timer_flag = true;
     locker1.unlock();
 }
 
-void CommandExec::execute_shutdown_timer_thread(TimeObject time_data) {
-    std::thread shutdown_command_thread = thread(&CommandExec::shutdown_timer, this, time_data);
-    shutdown_command_thread.detach();
-}
+void ShutdownCommand::startShutdownTimer(TimeObject time_data) {
 
-void CommandExec::shutdown_timer(TimeObject time_data) {
+    std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
+    terminate_timer_flag = false;
+    locker1.unlock();
 
     long long int t_target = time_data.get_msecs();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -52,24 +62,24 @@ void CommandExec::shutdown_timer(TimeObject time_data) {
             break;
         } else if (elapsed_ms >= t_target) {
             cout << "\n\n" << "&&&&&&&&&&&&&&&&&&&&&& TELOS TIMER" << endl;
-            #ifdef _WIN32
-                // -s is used for shutdown, -f is used to force shutdown,
-                // preventing the computer from getting stuck from background applications.
-                //system("shutdown -s -f");
+#ifdef _WIN32
+            // -s is used for shutdown, -f is used to force shutdown,
+            // preventing the computer from getting stuck from background applications.
+            //system("shutdown -s -f");
+            cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
+#else
+            //                system("shutdown -P now");
                 cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
-            #else
-//                system("shutdown -P now");
-                cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
-            #endif
+#endif
             break;
         }
     }
-    reset_terminate_timer_flag();
-}
-  
-  
 
-void CommandExec::shutdown_command(){
+}
+
+
+
+void ShutdownCommand::shutdownCommand(){
 #ifdef _WIN32
 
 
@@ -84,5 +94,3 @@ void CommandExec::shutdown_command(){
 
 
 }
-
-// temp

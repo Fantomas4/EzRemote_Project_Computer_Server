@@ -2,15 +2,12 @@
 // Created by Sierra Kilo on 07-Aug-18.
 //
 
-#include "App.h"
-
-
-
-
 #include <iostream>
-#include "MessageAnalysis.h"
 
+#include "MessageAnalysis.h"
 #include "nlohmann/json.hpp"
+#include "TimeObject.h"
+#include "JSON.h"
 
 using namespace std;
 
@@ -18,31 +15,22 @@ using namespace std;
 // Deleted copy constructor as a preemptive measure.
 //MessageAnalysis::MessageAnalysis(const MessageAnalysis&) = delete;
 
-MessageAnalysis::MessageAnalysis(App *app_ptr, std::string received_msg) {
-    this->app_ptr = app_ptr;
-    this->received_msg = received_msg;
-
-    cout << "received_msg inside constructor of MessageAnalysis is: " << this->received_msg << endl;
-
+MessageAnalysis::MessageAnalysis(bool* terminateRequestListener) {
     // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
     // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
     // To call a member function, the first argument to std::bind must be a pointer, reference, or
     // shared pointer to an object of the appropriate type
-    this->run_thread();
+    commandExec = CommandExec();
+    this->terminateRequestListener = terminateRequestListener;
 
 }
 
-void MessageAnalysis::run_thread() {
-    this->msg_analysis_thread = thread(&MessageAnalysis::process_received_message, this);
-}
+//void MessageAnalysis::run_thread(std::string received_msg) {
+//    std::thread analysisThread = thread(&MessageAnalysis::process_received_message, received_msg);
+//    analysisThread.detach();
+//}
 
-void MessageAnalysis::process_received_message() {
 
-    cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
-
-    nlohmann::json json_msg = nlohmann::json::parse(received_msg);
-
-    string request = json_msg["request"];
 
     if (request == "INITIALIZE_NEW_CONNECTION") {
         cout << "--------------VRIKA INITIALIZE_NEW_CONNECTION ---------" << endl;
@@ -54,25 +42,24 @@ void MessageAnalysis::process_received_message() {
             nlohmann::json msg_data = json_msg["data"];
             app_ptr->set_ip_bond_address(msg_data["client_ip"]);
 
-            // prepare the response to the client
-            map<string, string> data;
+    nlohmann::json jsonReplyMsg;
 
             nlohmann::json json_msg = app_ptr->generate_json_msg("SUCCESS", data);
 
-            cout << "Message Analysis is preparing to send reply to client..." << endl;
-            // send the response to the client
-            app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+    string request = jsonReceivedMsg["request"];
+
 
         }
 
     } else if (request == "EXECUTE_SHUTDOWN_COMMAND") {
-        // extract string data from the json message
-        nlohmann::json msg_data = json_msg["data"];
 
-        string s_hrs = msg_data["hours"];
-        string s_mns = msg_data["mins"];
-        string s_secs = msg_data["secs"];
-        string s_msecs = msg_data["msecs"];
+        // extract string data from the json message
+        nlohmann::json msgData = jsonReceivedMsg["data"];
+
+        string s_hrs = msgData["hours"];
+        string s_mns = msgData["mins"];
+        string s_secs = msgData["secs"];
+        string s_msecs = msgData["msecs"];
 
         // stoul converts the string from the temp variables above to the wanted unsigned integer type.
         unsigned int hours = std::stoul(s_hrs);
@@ -80,24 +67,21 @@ void MessageAnalysis::process_received_message() {
         unsigned int secs = std::stoul(s_secs);
         unsigned int msecs = std::stoul(s_msecs);
 
-
-        app_ptr->get_commandexec_obj_ptr()->execute_shutdown_timer_thread(TimeObject(hours, mins, secs, msecs));
-
         // prepare the response to the client
         map<string, string> data;
 
-        nlohmann::json json_msg = app_ptr->generate_json_msg("success", data);
+        jsonReplyMsg = JSON::prepareJsonReply("success", data);
 
-        // send the response to the client
-        app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+        commandExec.getShutdownCommandObjPtr()->startShutdownTimerThread(TimeObject(hours, mins, secs, msecs));
 
     } else if (request == "CANCEL_SHUTDOWN_COMMAND") {
 
-        app_ptr->get_commandexec_obj_ptr()->terminate_shutdown_timer_thread();
+        commandExec.getShutdownCommandObjPtr()->cancelShutdownTimer();
 
-        if (app_ptr->get_commandexec_obj_ptr()->get_terminate_timer_flag_value()) {
+        if (commandExec.getShutdownCommandObjPtr()->getTerminateTimerFlagValue()) {
             // prepare the response to the client
             map<string, string> data;
+
 
             nlohmann::json json_msg = app_ptr->generate_json_msg("SUCCESS", data);
 
@@ -105,6 +89,8 @@ void MessageAnalysis::process_received_message() {
             app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
         }
     }
+
+    return jsonReplyMsg;
 }
 
 // temp
