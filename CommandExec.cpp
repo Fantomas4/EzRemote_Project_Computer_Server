@@ -52,16 +52,21 @@ bool CommandExec::get_terminate_timer_flag_value() {
     return terminate_timer_flag;
 }
 
-
-void CommandExec::execute_shutdown_timer_thread(TimeObject time_data) {
-    std::thread shutdown_command_thread = thread(&CommandExec::shutdown_timer, this, time_data);
-    shutdown_command_thread.detach();
+void CommandExec::reset_terminate_timer_flag() {
+    std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
+    terminate_timer_flag = false;
+    locker1.unlock();
 }
 
 void CommandExec::terminate_shutdown_timer_thread() {
     std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
     terminate_timer_flag = true;
     locker1.unlock();
+}
+
+void CommandExec::execute_shutdown_timer_thread(TimeObject time_data) {
+    std::thread shutdown_command_thread = thread(&CommandExec::shutdown_timer, this, time_data);
+    shutdown_command_thread.detach();
 }
 
 void CommandExec::shutdown_timer(TimeObject time_data) {
@@ -94,7 +99,7 @@ void CommandExec::shutdown_timer(TimeObject time_data) {
             break;
         }
     }
-
+    reset_terminate_timer_flag();
 }
 
 

@@ -41,6 +41,8 @@ public:
 
     bool get_terminate_timer_flag_value();
 
+    void reset_terminate_timer_flag();
+
 };
 
 
