@@ -29,11 +29,7 @@ public:
 
 //    map<string, string> static get_identification_info();
 
-    void reset_terminate_timer_flag();
-
 };
 
 
 #endif //EZREMOTE_PROJECT_COMMANDEXEC_H
-
-// temp

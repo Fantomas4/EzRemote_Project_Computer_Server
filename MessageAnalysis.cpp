@@ -31,28 +31,17 @@ MessageAnalysis::MessageAnalysis(bool* terminateRequestListener) {
 //}
 
 
+nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg) {
 
-    if (request == "INITIALIZE_NEW_CONNECTION") {
-        cout << "--------------VRIKA INITIALIZE_NEW_CONNECTION ---------" << endl;
-        // check whether the application is already connected to a client
-        if (!app_ptr->is_in_connection()) {
-            // server accepts the connection
-            app_ptr->set_in_connection_to_true();
-
-            nlohmann::json msg_data = json_msg["data"];
-            app_ptr->set_ip_bond_address(msg_data["client_ip"]);
+    cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
 
     nlohmann::json jsonReplyMsg;
 
-            nlohmann::json json_msg = app_ptr->generate_json_msg("SUCCESS", data);
+    nlohmann::json jsonReceivedMsg = nlohmann::json::parse(received_msg);
 
     string request = jsonReceivedMsg["request"];
 
-
-        }
-
-    } else if (request == "EXECUTE_SHUTDOWN_COMMAND") {
-
+    if (request == "execute_shutdown_system_command") {
         // extract string data from the json message
         nlohmann::json msgData = jsonReceivedMsg["data"];
 
@@ -74,7 +63,7 @@ MessageAnalysis::MessageAnalysis(bool* terminateRequestListener) {
 
         commandExec.getShutdownCommandObjPtr()->startShutdownTimerThread(TimeObject(hours, mins, secs, msecs));
 
-    } else if (request == "CANCEL_SHUTDOWN_COMMAND") {
+    } else if (request == "cancel_shutdown_system_command") {
 
         commandExec.getShutdownCommandObjPtr()->cancelShutdownTimer();
 
@@ -82,15 +71,9 @@ MessageAnalysis::MessageAnalysis(bool* terminateRequestListener) {
             // prepare the response to the client
             map<string, string> data;
 
-
-            nlohmann::json json_msg = app_ptr->generate_json_msg("SUCCESS", data);
-
-            // send the response to the client
-            app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
+            jsonReplyMsg = JSON::prepareJsonReply("success", data);
         }
     }
 
     return jsonReplyMsg;
 }
-
-// temp
