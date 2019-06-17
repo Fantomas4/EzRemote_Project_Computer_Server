@@ -32,13 +32,13 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
 
     // set the inConnection status and ip bond at the RemoteServer
     this->remoteServerPtr->setInConnectionValue(true);
-    this->remoteServerPtr->setIpBondAddress(inMsgData["ip"]);
+    this->remoteServerPtr->setIpBondAddress(inMsgData["client_ip"]);
 
     // send a success response to the client to inform him that the
     // make_connection request has been accepted
     std::map<string, string> outMsgData;
 
-    std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("success", outMsgData));
+    std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("SUCCESS", outMsgData));
     const char *outboundMsg = temp_s.c_str();
 
     // giati den doyleyei??????????????????????
@@ -55,7 +55,7 @@ void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
 
     // reply to the client by sending an error response with the appropriate message
     std::map<string, string> msgData;
-    msgData["error_message"] = "Connection Denied! Server is already in a connection with a client.";
+    msgData["fail_message"] = "Connection Denied! Server is already in a connection with a client.";
 
     const char *outboundMsg = JSON::convertJsonToString(JSON::prepareJsonReply("error", msgData)).c_str();
 
@@ -151,7 +151,7 @@ void HandshakeHandler::handshakeListener() {
 
             string request = jsonReceivedMsg["request"];
 
-            if (request == "make_connection") {
+            if (request == "INITIALIZE_NEW_CONNECTION") {
 
                 // if the server is not already dedicated to a connection with a client
                 if (!this->remoteServerPtr->isInConnection()) {

@@ -41,7 +41,7 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
 
     string request = jsonReceivedMsg["request"];
 
-    if (request == "execute_shutdown_system_command") {
+    if (request == "EXECUTE_SHUTDOWN_COMMAND") {
         // extract string data from the json message
         nlohmann::json msgData = jsonReceivedMsg["data"];
 
@@ -59,11 +59,11 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
         // prepare the response to the client
         map<string, string> data;
 
-        jsonReplyMsg = JSON::prepareJsonReply("success", data);
+        jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
 
         commandExec.getShutdownCommandObjPtr()->startShutdownTimerThread(TimeObject(hours, mins, secs, msecs));
 
-    } else if (request == "cancel_shutdown_system_command") {
+    } else if (request == "CANCEL_SHUTDOWN_COMMAND") {
 
         commandExec.getShutdownCommandObjPtr()->cancelShutdownTimer();
 
@@ -71,7 +71,7 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
             // prepare the response to the client
             map<string, string> data;
 
-            jsonReplyMsg = JSON::prepareJsonReply("success", data);
+            jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
         }
     }
 
