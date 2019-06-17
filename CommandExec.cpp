@@ -3,6 +3,7 @@
 //
 
 #include "CommandExec.h"
+#include "ShutdownCommand.h"
 #include <iostream>
 
 #ifdef __WIN32
@@ -15,42 +16,6 @@
 using namespace std;
 
 CommandExec::CommandExec() {
-//    std::atomic_init(&terminate_timer, false);
-
-    // use unique lock for the asynchronous operation of changing the
-    // value for the terminate_timer_flag
-    mu_terminate_timer_flag = new std::mutex();
-    std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
-    terminate_timer_flag = false;
-    locker1.unlock();
-}
-
-map<string, string> CommandExec::get_identification_info() {
-    string id;
-    string ip;
-    string status;
-    map<string, string> info;
-
-    //get computer name
-    id = "test_computer_name";
-
-    //get computer ip
-    ip = "192.168.1.234";
-
-    //get computer readiness status
-    status = "Ready";
-
-    info["id"] = id;
-    info["ip"] = ip;
-    info["status"] = status;
-
-    return info;
-
-}
-
-bool CommandExec::get_terminate_timer_flag_value() {
-    return terminate_timer_flag;
-}
 
 void CommandExec::reset_terminate_timer_flag() {
     std::unique_lock<mutex> locker1(*mu_terminate_timer_flag);
@@ -102,20 +67,26 @@ void CommandExec::shutdown_timer(TimeObject time_data) {
     reset_terminate_timer_flag();
 }
 
+//map<string, string> CommandExec::get_identification_info() {
+//    string id;
+//    string ip;
+//    string status;
+//    map<string, string> info;
+//
+//    //get computer name
+//    id = "test_computer_name";
+//
+//    //get computer ip
+//    ip = "192.168.1.234";
+//
+//    //get computer readiness status
+//    status = "Ready";
+//
+//    info["id"] = id;
+//    info["ip"] = ip;
+//    info["status"] = status;
+//
+//    return info;
+//
+//}
 
-
-void CommandExec::shutdown_command(){
-#ifdef _WIN32
-
-
-    // -s is used for shutdown, -f is used to force shutdown,
-    // preventing the computer from getting stuck from background applications.
-    //system("shutdown -s -f");
-    cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
-#else
-    // usleep takes sleep time in us (1 millionth of a second)
-//    usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
-#endif
-
-
-}

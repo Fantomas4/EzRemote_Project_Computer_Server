@@ -5,29 +5,22 @@
 #ifndef EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 #define EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 
-#include <thread>
 
-
-// forward declaration
-class App;
-
-
+#include "nlohmann/json.hpp"
+#include "CommandExec.h"
 
 class MessageAnalysis {
 
 private:
-    App *app_ptr;
-    std::string received_msg;
-    std::thread msg_analysis_thread;
+    bool* terminateRequestListener;
+    CommandExec commandExec;
 
-
-    void process_received_message();
-
-    void run_thread();
 
 public:
+    MessageAnalysis(bool* terminateRequestListener);
 
-    MessageAnalysis(App *app_ptr, std::string received_msg);
+    nlohmann::json processReceivedMessage(std::string received_msg);
+
 
 };
 
