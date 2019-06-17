@@ -92,3 +92,5 @@ MessageAnalysis::MessageAnalysis(bool* terminateRequestListener) {
 
     return jsonReplyMsg;
 }
+
+// temp

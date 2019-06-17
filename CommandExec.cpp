@@ -66,27 +66,23 @@ void CommandExec::shutdown_timer(TimeObject time_data) {
     }
     reset_terminate_timer_flag();
 }
+  
+  
 
-//map<string, string> CommandExec::get_identification_info() {
-//    string id;
-//    string ip;
-//    string status;
-//    map<string, string> info;
-//
-//    //get computer name
-//    id = "test_computer_name";
-//
-//    //get computer ip
-//    ip = "192.168.1.234";
-//
-//    //get computer readiness status
-//    status = "Ready";
-//
-//    info["id"] = id;
-//    info["ip"] = ip;
-//    info["status"] = status;
-//
-//    return info;
-//
-//}
+void CommandExec::shutdown_command(){
+#ifdef _WIN32
 
+
+    // -s is used for shutdown, -f is used to force shutdown,
+    // preventing the computer from getting stuck from background applications.
+    //system("shutdown -s -f");
+    cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
+#else
+    // usleep takes sleep time in us (1 millionth of a second)
+//    usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
+#endif
+
+
+}
+
+// temp
