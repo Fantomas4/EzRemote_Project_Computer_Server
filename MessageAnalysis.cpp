@@ -31,17 +31,28 @@ MessageAnalysis::MessageAnalysis(bool* terminateRequestListener) {
 //}
 
 
-nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg) {
 
-    cout << "\n\ns_msg inside process_received_message() is : " << received_msg << endl;
+    if (request == "INITIALIZE_NEW_CONNECTION") {
+        cout << "--------------VRIKA INITIALIZE_NEW_CONNECTION ---------" << endl;
+        // check whether the application is already connected to a client
+        if (!app_ptr->is_in_connection()) {
+            // server accepts the connection
+            app_ptr->set_in_connection_to_true();
+
+            nlohmann::json msg_data = json_msg["data"];
+            app_ptr->set_ip_bond_address(msg_data["client_ip"]);
 
     nlohmann::json jsonReplyMsg;
 
-    nlohmann::json jsonReceivedMsg = nlohmann::json::parse(received_msg);
+            nlohmann::json json_msg = app_ptr->generate_json_msg("SUCCESS", data);
 
     string request = jsonReceivedMsg["request"];
 
-    if (request == "execute_shutdown_system_command") {
+
+        }
+
+    } else if (request == "EXECUTE_SHUTDOWN_COMMAND") {
+
         // extract string data from the json message
         nlohmann::json msgData = jsonReceivedMsg["data"];
 
@@ -63,7 +74,7 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
 
         commandExec.getShutdownCommandObjPtr()->startShutdownTimerThread(TimeObject(hours, mins, secs, msecs));
 
-    } else if (request == "cancel_shutdown_system_command") {
+    } else if (request == "CANCEL_SHUTDOWN_COMMAND") {
 
         commandExec.getShutdownCommandObjPtr()->cancelShutdownTimer();
 
@@ -71,7 +82,11 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
             // prepare the response to the client
             map<string, string> data;
 
-            jsonReplyMsg = JSON::prepareJsonReply("success", data);
+
+            nlohmann::json json_msg = app_ptr->generate_json_msg("SUCCESS", data);
+
+            // send the response to the client
+            app_ptr->get_remoteserver_obj_ptr()->server_reply(json_msg);
         }
     }
 
