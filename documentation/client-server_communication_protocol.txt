@@ -1,6 +1,6 @@
 A Request JSON messsage has the following form: { request : // (type of request is stated here, for example "INITIALIZE_NEW_CONNECTION") data : { // A JSON structure inside the request JSON message containing any necessary data for the request. // In the example of INITIALIZE_NEW_CONNECTION, such data, for example, would be the unique user identifier (USER_ID) } }
 
-A Response JSON message has the following form (taken from JSend protocol: https://github.com/omniti-labs/jsend): { status : // can be "success", "fail" or "error" data : { // A JSON structure inside the response JSON message containing any necessary data for the response. } }
+A Response JSON message has the following form (taken from JSend protocol: https://github.com/omniti-labs/jsend): { status : // can be "SUCCESS", "FAIL" or "ERROR" data : { // A JSON structure inside the response JSON message containing any necessary data for the response. } }
 
 
 
