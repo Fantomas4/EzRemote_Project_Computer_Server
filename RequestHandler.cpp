@@ -9,23 +9,40 @@
 #include <mutex>
 #include <iostream>
 #include <thread>
+#include <zconf.h>
 
 //#include "ConnectionHandler.h"
 
 RequestHandler::RequestHandler(SOCKET clientSocket):messageAnalysis(this) {
     this->clientSocket = clientSocket;
-    this->terminateRequestListener = false;
+    this->terminateRequestHandler = false;
 }
 
 void RequestHandler::start() {
     std::thread requestListenerThread = std::thread(&RequestHandler::requestListener, this);
     requestListenerThread.detach();
+
+//    std::thread heartbeatRequestServiceThread = std::thread(&RequestHandler::heartbeatRequestService, this);
+//    heartbeatRequestServiceThread.detach();
 }
 
 void RequestHandler::stop() {
-    // Set the terminateRequestListener flag to true
-    terminateRequestListener = true;
+    // Set the terminateRequestHandler flag to true
+    terminateRequestHandler = true;
 }
+
+//void RequestHandler::heartbeatRequestService() {
+//    while (!terminateRequestHandler) {
+//        sleep(heartbeatTimeInterval);
+//
+//        // Create a JSON HEARTBEAT_CHECK request and convert it to string
+//        std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonRequest("HEARTBEAT_CHECK", nullptr));
+//        const char* json_string = temp_s.c_str();
+//
+//        sendMessage(json_string);
+//
+//    }
+//}
 
 void RequestHandler::requestListener() {
 
@@ -34,8 +51,6 @@ void RequestHandler::requestListener() {
     int recv_size;
     char recv_buf[DEFAULT_BUFLEN] = {0};   // Initialises all elements to null.
     int recv_buf_len = DEFAULT_BUFLEN;
-
-    bool terminate_server = false;
 
     while (true) {
         printf("****** Listen LOOP *********\n");
@@ -89,13 +104,29 @@ void RequestHandler::requestListener() {
 
             handleRequestAndReply(s_received_msg);
 
-            if (this->terminateRequestListener) {
+            if (this->terminateRequestHandler) {
                 break;
             }
         }
     }
 
     ConnectionHandler::sockClose(this->clientSocket);
+}
+
+void RequestHandler::sendMessage(const char *outbound_msg) {
+    std::cout << "server outbound_msg is: " << std::endl;
+
+    for (int i=0; i<strlen(outbound_msg); i++) {
+        std::cout << outbound_msg[i];
+    }
+
+    // send the formatted message
+    ConnectionHandler::sendMsg(this->clientSocket, outbound_msg);
+
+    std::cout << "\n\n";
+
+    // cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
+    std::cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }
 
 
@@ -109,22 +140,8 @@ void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
     // and the pointer it returns is valid as long as the given string object exists.
 
     std::string temp_s = JSON::convertJsonToString(this->messageAnalysis.processReceivedMessage(receivedMsg));
+    const char* json_string = temp_s.c_str();
 
-    const char *outbound_msg = temp_s.c_str();
+    sendMessage(json_string);
 
-//    cout << "***********************strlen(outbound_msg): " << strlen(outbound_msg) << endl;
-    std::cout << "server outbound_msg is: " << std::endl;
-
-    for (int i=0; i<strlen(outbound_msg); i++) {
-        std::cout << outbound_msg[i];
-    }
-
-
-    //send the formatted message
-    ConnectionHandler::sendMsg(this->clientSocket, outbound_msg);
-
-    std::cout << "\n\n";
-
-//    cout << "Sending a message with size: " << strlen(outbound_msg) << endl;
-    std::cout << "(((((((((((((((((((((((((( SERVER REPLIED!";
 }

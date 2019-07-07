@@ -16,6 +16,18 @@ nlohmann::json JSON::prepareJsonReply(std::string status, std::map<std::string, 
     return json_msg;
 }
 
+nlohmann::json JSON::prepareJsonRequest(std::string request, std::map<std::string, std::string> data) {
+
+    nlohmann::json json_msg;
+
+    json_msg = {
+            {"request", request},
+            {"data", data}
+    };
+
+    return json_msg;
+}
+
 std::string JSON::convertJsonToString(nlohmann::json jsonObj) {
     return jsonObj.dump(4);
 }

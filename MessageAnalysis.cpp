@@ -74,6 +74,10 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
         map<string, string> data;
         jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
 
+    } else if (request == "HEARTBEAT_CHECK") {
+        // prepare the response to the client
+        map<string, string> data;
+        jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
     }
 
     return jsonReplyMsg;
