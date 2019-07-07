@@ -10,15 +10,17 @@
 #include "nlohmann/json.hpp"
 #include "CommandExec.h"
 
+class RequestHandler;
+
 class MessageAnalysis {
 
 private:
-    bool* terminateRequestListener;
+    RequestHandler* requestHandler;
     CommandExec commandExec;
 
 
 public:
-    MessageAnalysis(bool* terminateRequestListener);
+    MessageAnalysis(RequestHandler* requestHandler);
 
     nlohmann::json processReceivedMessage(std::string received_msg);
 

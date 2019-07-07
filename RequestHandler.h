@@ -23,7 +23,7 @@ private:
 
     // passed by reference to message analysis in order to facilitate the exit request
     // (terminate listener request) from the client.
-    bool terminateRequestListener;
+    std::atomic<bool> terminateRequestListener;
 
     void requestListener();
 
@@ -34,6 +34,8 @@ public:
     RequestHandler(SOCKET clientSocket);
 
     void start();
+
+    void stop();
 };
 
 

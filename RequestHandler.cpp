@@ -12,7 +12,7 @@
 
 //#include "ConnectionHandler.h"
 
-RequestHandler::RequestHandler(SOCKET clientSocket):messageAnalysis(&terminateRequestListener) {
+RequestHandler::RequestHandler(SOCKET clientSocket):messageAnalysis(this) {
     this->clientSocket = clientSocket;
     this->terminateRequestListener = false;
 }
@@ -20,6 +20,11 @@ RequestHandler::RequestHandler(SOCKET clientSocket):messageAnalysis(&terminateRe
 void RequestHandler::start() {
     std::thread requestListenerThread = std::thread(&RequestHandler::requestListener, this);
     requestListenerThread.detach();
+}
+
+void RequestHandler::stop() {
+    // Set the terminateRequestListener flag to true
+    terminateRequestListener = true;
 }
 
 void RequestHandler::requestListener() {
@@ -81,18 +86,6 @@ void RequestHandler::requestListener() {
         } else {
             // receive was successful
             std::string s_received_msg = recv_buf;
-
-
-
-            // Create a thread to process the received message and determine the client's given command
-            // The thread is created by the MessageAnalysis Object, during its construction.
-            printf("================ Ftiaxnw thread gia message analysis ========================\n");
-
-//            // https://en.cppreference.com/w/cpp/container/vector/emplace_back?fbclid=IwAR3ndX0Q_Ar04zBdiaXJizIvjO6drKG1nxJ1EnIgyC5P35HJl15BW5L424U
-//            messageAnalysis.run_thread(s_received_msg);
-
-//            std::thread requestHandler = std::thread(&ConnectionHandler::handleRequestAndReply, s_received_msg);
-//            requestHandler.detach();
 
             handleRequestAndReply(s_received_msg);
 
