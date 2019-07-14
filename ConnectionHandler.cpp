@@ -10,24 +10,6 @@ ConnectionHandler::ConnectionHandler() {
     std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEFAULT CONSTRUCTOR *******************" << std::endl;
 }
 
-
-
-//ConnectionHandler::ConnectionHandler(App *app_obj) {
-//
-//    std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ CUSTOM CONSTRUCTOR *******************" << std::endl;
-//
-//    this->app_ptr = app_obj;
-//
-//    this->final_message = "CUSTOM CONSTRUCTOR";
-//
-//}
-
-//ConnectionHandler& ConnectionHandler::getInstance() {
-//    static ConnectionHandler instance; // Guaranteed to be destroyed.
-//                                  // Instantiated on first use.
-//    return instance;
-//}
-
 int ConnectionHandler::recvMsg(SOCKET recvSocket, char *recv_buf) {
 
     // empty the recv_buf buffer by filling it with 0 (null)
@@ -120,10 +102,3 @@ int ConnectionHandler::serverQuit() {
     return 0;
 #endif
 }
-
-
-
-
-
-
-
