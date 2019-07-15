@@ -36,13 +36,11 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
 
     // send a success response to the client to inform him that the
     // make_connection request has been accepted
-    std::map<string, string> outMsgData;
+    std::map<string, string> msgData;
 
-    std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("SUCCESS", outMsgData));
+    std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("SUCCESS", msgData));
     const char *outboundMsg = temp_s.c_str();
 
-    // giati den doyleyei??????????????????????
-//    const char *outboundMsg = (JSON::convertJsonToString(JSON::prepareJsonReply("success", outMsgData))).c_str();
     RemoteServer::sendMsg(newSocket, outboundMsg);
 
     // start the request handler for the accepted client
@@ -52,12 +50,12 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
 
 void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
 
-
     // reply to the client by sending an error response with the appropriate message
     std::map<string, string> msgData;
     msgData["fail_message"] = "Connection Denied! Server is already in a connection with a client.";
 
-    const char *outboundMsg = JSON::convertJsonToString(JSON::prepareJsonReply("error", msgData)).c_str();
+    std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("FAIL", msgData));
+    const char *outboundMsg = temp_s.c_str();
 
     RemoteServer::sendMsg(rejSocket, outboundMsg);
 }
@@ -157,13 +155,11 @@ void HandshakeHandler::handshakeListener() {
                 if (!this->remoteServerPtr->isInConnection()) {
                     std::thread acceptNewConnectionThread(&HandshakeHandler::acceptNewConnection, this, newSocket, jsonReceivedMsg["data"]);
                     acceptNewConnectionThread.detach();
-//                    acceptNewConnection(newSocket, jsonReceivedMsg["data"]);
                 } else {
                     // if the server is already in a connection with a client,
                     // reject the connection request
                     std::thread rejectNewConnectionThread(&HandshakeHandler::rejectNewConnection, this, newSocket);
                     rejectNewConnectionThread.detach();
-//                    rejectNewConnection(newSocket);
                 }
             } else {
                 cout << "*** ERROR: The client has broken the defined protocol! ***" << endl;

@@ -10,9 +10,6 @@
 
 App::App() {
     remoteServer = RemoteServer(7890);
-};
-
-void App::runRemoteServer() {
     remoteServer.start();
-}
+};
 

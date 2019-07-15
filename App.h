@@ -15,8 +15,6 @@ private:
 public:
     App();
 
-    void runRemoteServer();
-
 };
 
 
