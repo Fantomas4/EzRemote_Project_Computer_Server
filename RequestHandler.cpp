@@ -22,27 +22,12 @@ void RequestHandler::start() {
     std::thread requestListenerThread = std::thread(&RequestHandler::requestListener, this);
     requestListenerThread.detach();
 
-//    std::thread heartbeatRequestServiceThread = std::thread(&RequestHandler::heartbeatRequestService, this);
-//    heartbeatRequestServiceThread.detach();
 }
 
 void RequestHandler::stop() {
     // Set the terminateRequestHandler flag to true
     terminateRequestHandler = true;
 }
-
-//void RequestHandler::heartbeatRequestService() {
-//    while (!terminateRequestHandler) {
-//        sleep(heartbeatTimeInterval);
-//
-//        // Create a JSON HEARTBEAT_CHECK request and convert it to string
-//        std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonRequest("HEARTBEAT_CHECK", nullptr));
-//        const char* json_string = temp_s.c_str();
-//
-//        sendMessage(json_string);
-//
-//    }
-//}
 
 void RequestHandler::requestListener() {
 
@@ -56,7 +41,7 @@ void RequestHandler::requestListener() {
         printf("****** Listen LOOP *********\n");
 
         // 0 means INVALID_SOCKET in WinSock
-        recv_size = ConnectionHandler::recvMsg(this->clientSocket, recv_buf);
+        recv_size = RemoteServer::recvMsg(this->clientSocket, recv_buf);
         if (recv_size == -1) {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
@@ -116,7 +101,7 @@ void RequestHandler::requestListener() {
         }
     }
 
-    ConnectionHandler::sockClose(this->clientSocket);
+    RemoteServer::sockClose(this->clientSocket);
 }
 
 void RequestHandler::sendMessage(const char *outbound_msg) {
@@ -127,7 +112,7 @@ void RequestHandler::sendMessage(const char *outbound_msg) {
     }
 
     // send the formatted message
-    ConnectionHandler::sendMsg(this->clientSocket, outbound_msg);
+    RemoteServer::sendMsg(this->clientSocket, outbound_msg);
 
     std::cout << "\n\n";
 

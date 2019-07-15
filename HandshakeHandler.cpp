@@ -3,7 +3,6 @@
 //
 
 #include "HandshakeHandler.h"
-#include "RemoteServer.h"
 #include "RequestHandler.h"
 
 #ifdef _WIN32
@@ -16,16 +15,17 @@
 
 #include <cstdio>
 
+
 HandshakeHandler::HandshakeHandler(RemoteServer* remoteServerPtr) {
     this->remoteServerPtr = remoteServerPtr;
     this->stopHandshakeListener = false;
-    this->handshakeListener();
+
 }
 
 HandshakeHandler::~HandshakeHandler() {
     delete this->requestHandler;
-    serverQuit();
 }
+
 
 void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData) {
     printf("A new connection has been accepted!\n");
@@ -43,7 +43,7 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
 
     // giati den doyleyei??????????????????????
 //    const char *outboundMsg = (JSON::convertJsonToString(JSON::prepareJsonReply("success", outMsgData))).c_str();
-    ConnectionHandler::sendMsg(newSocket, outboundMsg);
+    RemoteServer::sendMsg(newSocket, outboundMsg);
 
     // start the request handler for the accepted client
     this->requestHandler = new RequestHandler(newSocket);
@@ -59,7 +59,7 @@ void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
 
     const char *outboundMsg = JSON::convertJsonToString(JSON::prepareJsonReply("error", msgData)).c_str();
 
-    ConnectionHandler::sendMsg(rejSocket, outboundMsg);
+    RemoteServer::sendMsg(rejSocket, outboundMsg);
 }
 
 void HandshakeHandler::handshakeListener() {
@@ -139,7 +139,7 @@ void HandshakeHandler::handshakeListener() {
         int recv_size;
         char recv_buf[DEFAULT_BUFLEN] = {0};
 
-        recv_size = ConnectionHandler::recvMsg(newSocket, recv_buf);
+        recv_size = RemoteServer::recvMsg(newSocket, recv_buf);
 
         if (recv_size == -1) {
             // -1 means SOCKET_ERROR in WinSock

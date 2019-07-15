@@ -11,9 +11,9 @@
 
 #include <string>
 #include "MessageAnalysis.h"
-#include "ConnectionHandler.h"
+#include "RemoteServer.h"
 
-class RequestHandler:ConnectionHandler {
+class RequestHandler:RemoteServer {
 
 private:
 
@@ -22,10 +22,6 @@ private:
     MessageAnalysis messageAnalysis;
 
     std::atomic<bool> terminateRequestHandler;
-
-//    int heartbeatTimeInterval;
-
-//    void heartbeatRequestService();
 
     void requestListener();
 

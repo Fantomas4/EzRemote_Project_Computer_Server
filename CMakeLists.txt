@@ -13,4 +13,4 @@ else(USE_WINDOWS_LIB)
     link_libraries(pthread)
 endif(USE_WINDOWS_LIB)
 
-add_executable(EzRemote_Project main.cpp App.cpp App.h RemoteServer.cpp RemoteServer.h ConnectionHandler.cpp ConnectionHandler.h HandshakeHandler.cpp HandshakeHandler.h RequestHandler.cpp RequestHandler.h JSON.cpp JSON.h CommandExec.cpp CommandExec.h ShutdownCommand.cpp ShutdownCommand.h TimeObject.cpp TimeObject.h MessageAnalysis.cpp MessageAnalysis.h)
+add_executable(EzRemote_Project main.cpp App.cpp App.h RemoteServer.cpp RemoteServer.h HandshakeHandler.cpp HandshakeHandler.h RequestHandler.cpp RequestHandler.h JSON.cpp JSON.h CommandExec.cpp CommandExec.h ShutdownCommand.cpp ShutdownCommand.h TimeObject.cpp TimeObject.h MessageAnalysis.cpp MessageAnalysis.h)
