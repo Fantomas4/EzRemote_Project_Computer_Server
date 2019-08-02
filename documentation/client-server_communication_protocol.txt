@@ -1,7 +1,7 @@
 A Request JSON messsage has the following form: { request : // (type of request is stated here, for example "INITIALIZE_NEW_CONNECTION") data : { // A JSON structure inside the request JSON message containing any necessary data for the request. // In the example of INITIALIZE_NEW_CONNECTION, such data, for example, would be the unique user identifier (USER_ID) } }
 
 A Response JSON message has the following form (taken from JSend protocol: https://github.com/omniti-labs/jsend): { status : // can be "SUCCESS", "FAIL" or "ERROR" data : { // A JSON structure inside the response JSON message containing any necessary data for the response. } }
-
+(based on https://github.com/omniti-labs/jsend)
 
 
 
@@ -68,16 +68,16 @@ data: <NONE> or a fail message string store in fail_message or an error message 
 
 Heartbeat protocol (A protocol used to check if a client is still alive, while at the same time keeping the socket open):
 
-Server sends a heartbeat request every X seconds to every client that has connected to it. X is a time interval set in the application's settings. The type of request that is used for this is "HEARTBEAT_CHECK". No data is required inside the message of a heartbeat request.
-If the client is still active and working normally, it will respond to the server's heartbeat request with a response. The response has a "SUCCESS" status. No data is required inside the heartbeat check response.
-A timeout is set for the server. If the timeout expires and the server has not received a heartbeat response from a client, the client is considered unavailable/unreachable and is immediately disconnected from the server. Otherwise, if a proper heartbeat response is received, the client is considered active and fully functional, thus no further action is taken.
+Client sends a heartbeat request every X seconds to every client that has connected to it. X is a time interval set in the application's settings. The type of request that is used for this is "HEARTBEAT_CHECK". No data is required inside the message of a heartbeat request.
+If the Server is still active and working normally, it will respond to the client's heartbeat request with a response. The response has a "SUCCESS" status. No data is required inside the heartbeat check response.
+A timeout is set for the server. If the timeout expires and the client has not received a heartbeat response from a client, the server is considered unavailable/unreachable and the client immediately disconnected from the server. Otherwise, if a proper heartbeat response is received, the server is considered active and fully functional, thus no further action is taken.
 
-Server sends a JSON request:
+Client sends a JSON request:
 
 request: HEARTBEAT_CHECK
 data: <NONE>
 
-Client sends a JSON response (to verify he is still online):
+Server sends a JSON response (to verify he is still online):
 status: "SUCCESS"
 data: <NONE>
 

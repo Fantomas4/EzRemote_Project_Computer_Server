@@ -13,7 +13,8 @@ class JSON {
 
 public:
     static nlohmann::json prepareJsonReply(std::string status, std::map<std::string, std::string> data);
-//    static nlohmann::json convert_string_to_json(std::string received_msg);
+
+    static nlohmann::json prepareJsonRequest(std::string request, std::map<std::string, std::string> data);
 
     static std::string convertJsonToString(nlohmann::json jsonObj);
 };

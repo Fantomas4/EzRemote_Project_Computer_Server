@@ -11,9 +11,9 @@
 
 #include <string>
 #include "MessageAnalysis.h"
-#include "ConnectionHandler.h"
+#include "RemoteServer.h"
 
-class RequestHandler:ConnectionHandler {
+class RequestHandler:RemoteServer {
 
 private:
 
@@ -21,11 +21,11 @@ private:
 
     MessageAnalysis messageAnalysis;
 
-    // passed by reference to message analysis in order to facilitate the exit request
-    // (terminate listener request) from the client.
-    std::atomic<bool> terminateRequestListener;
+    std::atomic<bool> terminateRequestHandler;
 
     void requestListener();
+
+    void sendMessage(const char *outbound_msg);
 
     void handleRequestAndReply(std::string receivedMsg);
 
