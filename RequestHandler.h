@@ -5,15 +5,11 @@
 #ifndef EZREMOTE_PROJECT_REQUESTHANDLER_H
 #define EZREMOTE_PROJECT_REQUESTHANDLER_H
 
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-
 #include <string>
 #include "MessageAnalysis.h"
-#include "RemoteServer.h"
+#include "ConnectionHandler.h"
 
-class RequestHandler:RemoteServer {
+class RequestHandler:ConnectionHandler {
 
 private:
 

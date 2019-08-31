@@ -8,8 +8,7 @@
 
 
 
-App::App() {
-    remoteServer = RemoteServer(7890);
+App::App():remoteServer(7890) {
     remoteServer.start();
 };
 

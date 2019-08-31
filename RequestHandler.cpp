@@ -11,7 +11,6 @@
 #include <thread>
 #include <zconf.h>
 
-//#include "ConnectionHandler.h"
 
 RequestHandler::RequestHandler(SOCKET clientSocket) : messageAnalysis(this) {
     this->clientSocket = clientSocket;
@@ -41,7 +40,7 @@ void RequestHandler::requestListener() {
         printf("****** Listen LOOP *********\n");
 
         // 0 means INVALID_SOCKET in WinSock
-        recv_size = RemoteServer::recvMsg(this->clientSocket, recv_buf);
+        recv_size = ConnectionHandler::recvMsg(this->clientSocket, recv_buf);
         if (recv_size == -1) {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
@@ -101,7 +100,7 @@ void RequestHandler::requestListener() {
         }
     }
 
-    RemoteServer::sockClose(this->clientSocket);
+    ConnectionHandler::sockClose(this->clientSocket);
 }
 
 void RequestHandler::sendMessage(const char *outbound_msg) {
@@ -112,7 +111,7 @@ void RequestHandler::sendMessage(const char *outbound_msg) {
     }
 
     // send the formatted message
-    RemoteServer::sendMsg(this->clientSocket, outbound_msg);
+    ConnectionHandler::sendMsg(this->clientSocket, outbound_msg);
 
     std::cout << "\n\n";
 

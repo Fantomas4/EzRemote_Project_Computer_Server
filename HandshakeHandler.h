@@ -5,30 +5,14 @@
 #ifndef EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 #define EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 
-#ifdef _WIN32
-
-#include <winsock2.h>
-
-#else
-
-/* Assume that any non-Windows platform uses POSIX-style sockets instead. */
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */
-#include <unistd.h> /* Needed for close() */
-#include <thread>
-
-typedef int SOCKET;
-
-#endif
-
+#include "ConnectionHandler.h"
 #include "JSON.h"
-#include "RemoteServer.h"
 
 
+class RemoteServer;
 class RequestHandler;
 
-class HandshakeHandler:RemoteServer {
+class HandshakeHandler:ConnectionHandler {
 
 private:
     RemoteServer* remoteServerPtr;

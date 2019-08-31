@@ -31,8 +31,8 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
     printf("A new connection has been accepted!\n");
 
     // set the inConnection status and ip bond at the RemoteServer
-    this->remoteServerPtr->setInConnectionValue(true);
-    this->remoteServerPtr->setIpBondAddress(inMsgData["client_ip"]);
+    this->remoteServer.setInConnectionValue(true);
+    this->remoteServer.setIpBondAddress(inMsgData["client_ip"]);
 
     // send a success response to the client to inform him that the
     // make_connection request has been accepted
@@ -41,7 +41,7 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
     std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("SUCCESS", msgData));
     const char *outboundMsg = temp_s.c_str();
 
-    RemoteServer::sendMsg(newSocket, outboundMsg);
+    ConnectionHandler::sendMsg(newSocket, outboundMsg);
 
     // start the request handler for the accepted client
     this->requestHandler = new RequestHandler(newSocket);
@@ -57,7 +57,7 @@ void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
     std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("FAIL", msgData));
     const char *outboundMsg = temp_s.c_str();
 
-    RemoteServer::sendMsg(rejSocket, outboundMsg);
+    ConnectionHandler::sendMsg(rejSocket, outboundMsg);
 }
 
 void HandshakeHandler::handshakeListener() {
@@ -137,7 +137,7 @@ void HandshakeHandler::handshakeListener() {
         int recv_size;
         char recv_buf[DEFAULT_BUFLEN] = {0};
 
-        recv_size = RemoteServer::recvMsg(newSocket, recv_buf);
+        recv_size = ConnectionHandler::recvMsg(newSocket, recv_buf);
 
         if (recv_size == -1) {
             // -1 means SOCKET_ERROR in WinSock
@@ -152,7 +152,7 @@ void HandshakeHandler::handshakeListener() {
             if (request == "INITIALIZE_NEW_CONNECTION") {
 
                 // if the server is not already dedicated to a connection with a client
-                if (!this->remoteServerPtr->isInConnection()) {
+                if (!this->remoteServer.isInConnection()) {
                     std::thread acceptNewConnectionThread(&HandshakeHandler::acceptNewConnection, this, newSocket, jsonReceivedMsg["data"]);
                     acceptNewConnectionThread.detach();
                 } else {
