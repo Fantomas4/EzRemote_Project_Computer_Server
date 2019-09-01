@@ -5,9 +5,12 @@
 #ifndef EZREMOTE_PROJECT_REQUESTHANDLER_H
 #define EZREMOTE_PROJECT_REQUESTHANDLER_H
 
+
 #include <string>
-#include "MessageAnalysis.h"
+
 #include "ConnectionHandler.h"
+#include "MessageAnalysis.h"
+
 
 class RequestHandler:ConnectionHandler {
 
@@ -28,6 +31,8 @@ private:
 public:
 
     RequestHandler(SOCKET clientSocket);
+
+    RequestHandler();
 
     void start();
 

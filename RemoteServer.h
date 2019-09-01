@@ -3,43 +3,32 @@
 //
 
 
-#ifndef EZREMOTE_PROJECT_CONNECTIONHANDLER_H
-#define EZREMOTE_PROJECT_CONNECTIONHANDLER_H
+#ifndef EZREMOTE_PROJECT_REMOTESERVER_H
+#define EZREMOTE_PROJECT_REMOTESERVER_H
 
 
 #include "HandshakeHandler.h"
 
+
 class RemoteServer {
 
 private:
-    HandshakeHandler handshakeHandler;
-
-protected:
 
     int port;
 
-    // states whether the server is currently connected to a client.
-    bool in_connection;
-    // holds the ip of the client that the application is currently bonded to.
-    std::string ip_bond;
+    AppState appState;
+
+    HandshakeHandler handshakeHandler;
 
 public:
 
-    explicit RemoteServer(int port);
+    explicit RemoteServer(int port, AppState& appState);
 
     virtual void start();
 
     virtual void stop();
 
-    void setInConnectionValue(bool value);
-
-    bool isInConnection();
-
-    void setIpBondAddress(std::string ip);
-
-    std::string getIpBondAddress();
-
 };
 
 
-#endif //EZREMOTE_PROJECT_CONNECTIONHANDLER_H
+#endif //EZREMOTE_PROJECT_REMOTESERVER_H

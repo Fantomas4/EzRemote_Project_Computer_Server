@@ -7,15 +7,24 @@
 
 #include "RemoteServer.h"
 
+
 class App {
 
 private:
+
+    AppState appState;
+
     RemoteServer remoteServer;
 
 public:
     App();
 
 };
+
+int main() {
+    App app = App();
+    return 0;
+}
 
 
 #endif //EZREMOTE_PROJECT_APP_H

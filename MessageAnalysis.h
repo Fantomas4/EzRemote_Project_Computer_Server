@@ -7,7 +7,7 @@
 #define EZREMOTE_PROJECT_MESSAGEANALYSIS_H
 
 
-#include "nlohmann/json.hpp"
+#include "JSON.h"
 #include "CommandExec.h"
 
 class RequestHandler;
@@ -15,12 +15,14 @@ class RequestHandler;
 class MessageAnalysis {
 
 private:
-    RequestHandler* requestHandler;
+//    RequestHandler* requestHandler;
     CommandExec commandExec;
 
 
 public:
-    MessageAnalysis(RequestHandler* requestHandler);
+//    MessageAnalysis(RequestHandler* requestHandler);
+
+    MessageAnalysis();
 
     nlohmann::json processReceivedMessage(std::string received_msg);
 

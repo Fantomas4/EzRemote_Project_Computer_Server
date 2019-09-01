@@ -3,12 +3,9 @@
 //
 
 #include "App.h"
-#include <iostream>
-#include "nlohmann/json.hpp"
 
-
-
-App::App():remoteServer(7890) {
+App::App():remoteServer(7890, appState) {
+    appState = AppState();
     remoteServer.start();
 };
 

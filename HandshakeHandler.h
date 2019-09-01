@@ -5,17 +5,22 @@
 #ifndef EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 #define EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 
+
+
+#include "AppState.h"
 #include "ConnectionHandler.h"
 #include "JSON.h"
 
 
-class RemoteServer;
+
 class RequestHandler;
 
 class HandshakeHandler:ConnectionHandler {
 
 private:
-    RemoteServer* remoteServerPtr;
+    AppState appState;
+
+    RequestHandler* requestHandler;
 
     void acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData);
 
@@ -23,10 +28,10 @@ private:
 
     bool stopHandshakeListener;
 
-    RequestHandler* requestHandler;
+
 
 public:
-    HandshakeHandler(RemoteServer* remoteServerPtr);
+    HandshakeHandler(AppState& appState);
 
     ~HandshakeHandler();
 

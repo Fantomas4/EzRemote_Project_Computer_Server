@@ -5,8 +5,6 @@
 #include <iostream>
 
 #include "MessageAnalysis.h"
-#include "RequestHandler.h"
-#include "nlohmann/json.hpp"
 #include "TimeObject.h"
 #include "JSON.h"
 
@@ -16,13 +14,22 @@ using namespace std;
 // Deleted copy constructor as a preemptive measure.
 //MessageAnalysis::MessageAnalysis(const MessageAnalysis&) = delete;
 
-MessageAnalysis::MessageAnalysis(RequestHandler* requestHandler) {
+//MessageAnalysis::MessageAnalysis(RequestHandler* requestHandler) {
+//    // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
+//    // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
+//    // To call a member function, the first argument to std::bind must be a pointer, reference, or
+//    // shared pointer to an object of the appropriate type
+//    commandExec = CommandExec();
+//    this->requestHandler = requestHandler;
+//
+//}
+
+MessageAnalysis::MessageAnalysis() {
     // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
     // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
     // To call a member function, the first argument to std::bind must be a pointer, reference, or
     // shared pointer to an object of the appropriate type
     commandExec = CommandExec();
-    this->requestHandler = requestHandler;
 
 }
 
@@ -68,11 +75,11 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
             jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
         }
 
-    } else if (request == "TERMINATE_CONNECTION") {
-        requestHandler->stop();
-        // prepare the response to the client
-        map<string, string> data;
-        jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
+//    } else if (request == "TERMINATE_CONNECTION") {
+//        requestHandler->stop();
+//        // prepare the response to the client
+//        map<string, string> data;
+//        jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
 
 
     } else if (request == "HEARTBEAT_CHECK") {

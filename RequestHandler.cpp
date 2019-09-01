@@ -12,7 +12,7 @@
 #include <zconf.h>
 
 
-RequestHandler::RequestHandler(SOCKET clientSocket) : messageAnalysis(this) {
+RequestHandler::RequestHandler(SOCKET clientSocket) : messageAnalysis() {
     this->clientSocket = clientSocket;
     this->terminateRequestHandler = false;
 }
@@ -135,3 +135,4 @@ void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
     sendMessage(json_string);
 
 }
+

@@ -2,22 +2,17 @@
 // Created by Sierra Kilo on 10-Mar-19.
 //
 
+
+#include <cstdio>
+#include <ws2tcpip.h>
+#include <string>
+
 #include "HandshakeHandler.h"
 #include "RequestHandler.h"
 
-#ifdef _WIN32
 
-#include <ws2tcpip.h>
-
-#else
-
-#endif
-
-#include <cstdio>
-
-
-HandshakeHandler::HandshakeHandler(RemoteServer* remoteServerPtr) {
-    this->remoteServerPtr = remoteServerPtr;
+HandshakeHandler::HandshakeHandler(AppState& appState) {
+    this->appState = appState;
     this->stopHandshakeListener = false;
 
 }
@@ -31,12 +26,12 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
     printf("A new connection has been accepted!\n");
 
     // set the inConnection status and ip bond at the RemoteServer
-    this->remoteServer.setInConnectionValue(true);
-    this->remoteServer.setIpBondAddress(inMsgData["client_ip"]);
+    this->appState.setInConnectionValue(true);
+    this->appState.setIpBondAddress(inMsgData["client_ip"]);
 
     // send a success response to the client to inform him that the
     // make_connection request has been accepted
-    std::map<string, string> msgData;
+    std::map<std::string, std::string> msgData;
 
     std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("SUCCESS", msgData));
     const char *outboundMsg = temp_s.c_str();
@@ -152,7 +147,7 @@ void HandshakeHandler::handshakeListener() {
             if (request == "INITIALIZE_NEW_CONNECTION") {
 
                 // if the server is not already dedicated to a connection with a client
-                if (!this->remoteServer.isInConnection()) {
+                if (!this->appState.isInConnection()) {
                     std::thread acceptNewConnectionThread(&HandshakeHandler::acceptNewConnection, this, newSocket, jsonReceivedMsg["data"]);
                     acceptNewConnectionThread.detach();
                 } else {
