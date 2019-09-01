@@ -7,6 +7,7 @@
 #define EZREMOTE_PROJECT_REMOTESERVER_H
 
 
+#include <thread>
 #include "HandshakeHandler.h"
 
 
@@ -19,6 +20,8 @@ private:
     AppState appState;
 
     HandshakeHandler handshakeHandler;
+
+    std::thread handshakeListenerThread;
 
 public:
 

@@ -2,7 +2,6 @@
 // Created by Sierra Kilo on 06-Aug-18.
 //
 
-#include <thread>
 #include "RemoteServer.h"
 
 
@@ -16,7 +15,7 @@ RemoteServer::RemoteServer(int port, AppState& appState):handshakeHandler(appSta
 void RemoteServer::start() {
 
 
-    std::thread handshakeListenerThread = std::thread(&HandshakeHandler::handshakeListener, handshakeHandler);
+    handshakeListenerThread = std::thread(&HandshakeHandler::handshakeListener, handshakeHandler);
     handshakeListenerThread.join();
 
 }
