@@ -174,9 +174,10 @@ HandshakeHandler &HandshakeHandler::operator=(HandshakeHandler &&obj) {
 }
 
 HandshakeHandler::~HandshakeHandler() {
-    delete this->requestHandler;
 
     if (this->handshakeListenerThread.joinable()) {
         this->handshakeListenerThread.join();
     }
+
+    delete this->requestHandler;
 }
