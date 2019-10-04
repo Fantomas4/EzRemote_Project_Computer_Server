@@ -16,18 +16,34 @@ private:
     bool terminate_timer_flag = false;
     std::mutex *mu_terminate_timer_flag;
 
+    std::thread timerThread;
+
     void startShutdownTimer(TimeObject time_data);
 
-    void shutdownCommand();
+    void executeShutdown();
 
 public:
     ShutdownCommand();
+
+    //Delete the copy constructor
+    ShutdownCommand(const ShutdownCommand&) = delete;
+
+    //Delete the Assignment operator
+    ShutdownCommand& operator=(const ShutdownCommand&) = delete;
+
+    // Move Constructor
+    ShutdownCommand(ShutdownCommand&& obj);
+
+    //Move Assignment Operator
+    ShutdownCommand& operator=(ShutdownCommand&& obj);
 
     void startShutdownTimerThread(TimeObject time_data);
 
     void cancelShutdownTimer();
 
     bool getTerminateTimerFlagValue();
+
+    ~ShutdownCommand();
 
 };
 

@@ -26,8 +26,7 @@ ShutdownCommand::ShutdownCommand() {
 }
 
 void ShutdownCommand::startShutdownTimerThread(TimeObject time_data) {
-    std::thread shutdownTimerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
-    shutdownTimerThread.detach();
+    this->timerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
 }
 
 bool ShutdownCommand::getTerminateTimerFlagValue() {
@@ -79,7 +78,7 @@ void ShutdownCommand::startShutdownTimer(TimeObject time_data) {
 
 
 
-void ShutdownCommand::shutdownCommand(){
+void ShutdownCommand::executeShutdown(){
 #ifdef _WIN32
 
 
@@ -93,4 +92,25 @@ void ShutdownCommand::shutdownCommand(){
 #endif
 
 
+}
+
+ShutdownCommand::~ShutdownCommand() {
+    if (this->timerThread.joinable()) {
+        this->timerThread.join();
+    }
+}
+
+ShutdownCommand::ShutdownCommand(ShutdownCommand &&obj) : timerThread(std::move(obj.timerThread)){
+    std::cout << "Move Constructor is called" << std::endl;
+
+}
+
+ShutdownCommand &ShutdownCommand::operator=(ShutdownCommand &&obj) {
+    std::cout << "Move Assignment is called" << std::endl;
+    if (timerThread.joinable()) {
+        timerThread.join();
+    }
+    timerThread = std::move(obj.timerThread);
+
+    return *this;
 }

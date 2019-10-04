@@ -15,12 +15,7 @@
 RequestHandler::RequestHandler(SOCKET clientSocket) : messageAnalysis() {
     this->clientSocket = clientSocket;
     this->terminateRequestHandler = false;
-}
-
-void RequestHandler::start() {
-    std::thread requestListenerThread = std::thread(&RequestHandler::requestListener, this);
-    requestListenerThread.detach();
-
+    this->requestListenerThread = std::thread(&RequestHandler::requestListener, this);
 }
 
 void RequestHandler::stop() {
@@ -134,5 +129,26 @@ void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
 
     sendMessage(json_string);
 
+}
+
+RequestHandler::~RequestHandler() {
+    if (this->requestListenerThread.joinable()) {
+        this->requestListenerThread.join();
+    }
+}
+
+RequestHandler::RequestHandler(RequestHandler &&obj) : requestListenerThread(std::move(obj.requestListenerThread)) {
+    std::cout << "Move Constructor is called" << std::endl;
+}
+
+RequestHandler &RequestHandler::operator=(RequestHandler &&obj) {
+    std::cout << "Move Assignment is called" << std::endl;
+    if (requestListenerThread.joinable()) {
+        requestListenerThread.join();
+    }
+    requestListenerThread = std::move(obj.requestListenerThread);
+
+
+    return *this;
 }
 

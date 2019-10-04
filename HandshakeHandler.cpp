@@ -11,23 +11,19 @@
 #include "RequestHandler.h"
 
 
-HandshakeHandler::HandshakeHandler(AppState& appState) {
+HandshakeHandler::HandshakeHandler(AppState* appState) {
     this->appState = appState;
     this->stopHandshakeListener = false;
+    this->handshakeListenerThread = std::thread(&HandshakeHandler::handshakeListener, this);
 
 }
-
-HandshakeHandler::~HandshakeHandler() {
-    delete this->requestHandler;
-}
-
 
 void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData) {
     printf("A new connection has been accepted!\n");
 
     // set the inConnection status and ip bond at the RemoteServer
-    this->appState.setInConnectionValue(true);
-    this->appState.setIpBondAddress(inMsgData["client_ip"]);
+    this->appState->setInConnectionValue(true);
+    this->appState->setIpBondAddress(inMsgData["client_ip"]);
 
     // send a success response to the client to inform him that the
     // make_connection request has been accepted
@@ -40,7 +36,6 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
 
     // start the request handler for the accepted client
     this->requestHandler = new RequestHandler(newSocket);
-    this->requestHandler->start();
 }
 
 void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
@@ -147,7 +142,7 @@ void HandshakeHandler::handshakeListener() {
             if (request == "INITIALIZE_NEW_CONNECTION") {
 
                 // if the server is not already dedicated to a connection with a client
-                if (!this->appState.isInConnection()) {
+                if (!this->appState->isInConnection()) {
                     std::thread acceptNewConnectionThread(&HandshakeHandler::acceptNewConnection, this, newSocket, jsonReceivedMsg["data"]);
                     acceptNewConnectionThread.detach();
                 } else {
@@ -160,5 +155,28 @@ void HandshakeHandler::handshakeListener() {
                 cout << "*** ERROR: The client has broken the defined protocol! ***" << endl;
             }
         }
+    }
+}
+
+
+HandshakeHandler::HandshakeHandler(HandshakeHandler &&obj) : handshakeListenerThread(std::move(obj.handshakeListenerThread)) {
+    std::cout << "Move Constructor is called" << std::endl;
+}
+
+HandshakeHandler &HandshakeHandler::operator=(HandshakeHandler &&obj) {
+    std::cout << "Move Assignment is called" << std::endl;
+    if (handshakeListenerThread.joinable()) {
+        handshakeListenerThread.join();
+    }
+    handshakeListenerThread = std::move(obj.handshakeListenerThread);
+
+    return *this;
+}
+
+HandshakeHandler::~HandshakeHandler() {
+    delete this->requestHandler;
+
+    if (this->handshakeListenerThread.joinable()) {
+        this->handshakeListenerThread.join();
     }
 }

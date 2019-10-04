@@ -15,21 +15,16 @@ class RemoteServer {
 
 private:
 
-    int port;
-
-    AppState appState;
-
     HandshakeHandler handshakeHandler;
 
-    std::thread handshakeListenerThread;
 
 public:
 
-    explicit RemoteServer(int port, AppState& appState);
+    // delete the default constructor
+    RemoteServer() = delete;
 
-    virtual void start();
+    RemoteServer(AppState* appState);
 
-    virtual void stop();
 
 };
 

@@ -15,12 +15,11 @@ class RequestHandler;
 class MessageAnalysis {
 
 private:
-//    RequestHandler* requestHandler;
+
     CommandExec commandExec;
 
 
 public:
-//    MessageAnalysis(RequestHandler* requestHandler);
 
     MessageAnalysis();
 

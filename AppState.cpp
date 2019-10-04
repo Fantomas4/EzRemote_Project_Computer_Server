@@ -4,7 +4,8 @@
 
 #include "AppState.h"
 
-AppState::AppState() {
+AppState::AppState(int port) {
+    this->port = port;
     this->in_connection = false;
     this->ip_bond = "";
 }
@@ -23,4 +24,12 @@ void AppState::setIpBondAddress(std::string ip) {
 
 void AppState::setInConnectionValue(bool value) {
     in_connection = true;
+}
+
+void AppState::setPort(int port) {
+    this->port = port;
+}
+
+int AppState::getPort() {
+    return port;
 }

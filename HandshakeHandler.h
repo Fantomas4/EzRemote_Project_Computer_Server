@@ -6,7 +6,7 @@
 #define EZREMOTE_PROJECT_HANDSHAKEHANDLER_H
 
 
-
+#include <thread>
 #include "AppState.h"
 #include "ConnectionHandler.h"
 #include "JSON.h"
@@ -18,7 +18,9 @@ class RequestHandler;
 class HandshakeHandler:ConnectionHandler {
 
 private:
-    AppState appState;
+    AppState* appState;
+
+    std::thread handshakeListenerThread;
 
     RequestHandler* requestHandler;
 
@@ -31,11 +33,29 @@ private:
 
 
 public:
-    HandshakeHandler(AppState& appState);
+
+    // delete default constructor
+    HandshakeHandler() = delete;
+
+    HandshakeHandler(AppState* appState);
+
+    //Delete the copy constructor
+    HandshakeHandler(const HandshakeHandler&) = delete;
+
+    //Delete the Assignment operator
+    HandshakeHandler& operator=(const HandshakeHandler&) = delete;
+
+    // Move Constructor
+    HandshakeHandler(HandshakeHandler && obj);
+
+    //Move Assignment Operator
+    HandshakeHandler & operator=(HandshakeHandler && obj);
+
+
+    void handshakeListener();
 
     ~HandshakeHandler();
 
-    void handshakeListener();
 };
 
 

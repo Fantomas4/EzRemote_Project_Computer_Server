@@ -11,6 +11,8 @@
 class AppState {
 
 private:
+    // states the port used by the server
+    int port;
     // states whether the server is currently connected to a client.
     bool in_connection;
     // holds the ip of the client that the application is currently bonded to.
@@ -18,7 +20,11 @@ private:
 
 public:
 
-    AppState();
+    AppState(int port);
+
+    void setPort(int port);
+
+    int getPort();
 
     void setInConnectionValue(bool value);
 

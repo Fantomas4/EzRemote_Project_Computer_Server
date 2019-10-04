@@ -18,6 +18,8 @@ private:
 
     SOCKET clientSocket;
 
+    std::thread requestListenerThread;
+
     MessageAnalysis messageAnalysis;
 
     std::atomic<bool> terminateRequestHandler;
@@ -30,13 +32,26 @@ private:
 
 public:
 
+    // delete default constructor
+    RequestHandler() = delete;
+
     RequestHandler(SOCKET clientSocket);
 
-    RequestHandler();
+    //Delete the copy constructor
+    RequestHandler(const RequestHandler&) = delete;
 
-    void start();
+    //Delete the Assignment operator
+    RequestHandler& operator=(const RequestHandler&) = delete;
+
+    // Move Constructor
+    RequestHandler(RequestHandler&& obj);
+
+    //Move Assignment Operator
+    RequestHandler& operator=(RequestHandler&& obj);
 
     void stop();
+
+    ~RequestHandler();
 };
 
 

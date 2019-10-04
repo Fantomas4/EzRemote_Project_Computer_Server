@@ -4,8 +4,8 @@
 
 #include "App.h"
 
-App::App():remoteServer(7890, appState) {
-    appState = AppState();
-    remoteServer.start();
+// initializer list
+App::App(): appState(7890), remoteServer(&appState) {
+
 };
 
