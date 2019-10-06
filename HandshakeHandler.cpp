@@ -117,6 +117,9 @@ void HandshakeHandler::handshakeListener() {
     c = sizeof(struct sockaddr_in);
 
     while (!this->stopHandshakeListener) {
+
+        cout << "==========> HandshakeListener LOOP" << endl;
+
         SOCKET newSocket = accept(s , (struct sockaddr *)&client, &c);
 
 
@@ -143,13 +146,11 @@ void HandshakeHandler::handshakeListener() {
 
                 // if the server is not already dedicated to a connection with a client
                 if (!this->appState->isInConnection()) {
-                    std::thread acceptNewConnectionThread(&HandshakeHandler::acceptNewConnection, this, newSocket, jsonReceivedMsg["data"]);
-                    acceptNewConnectionThread.detach();
+                    acceptNewConnection(newSocket, jsonReceivedMsg["data"]);
                 } else {
                     // if the server is already in a connection with a client,
                     // reject the connection request
-                    std::thread rejectNewConnectionThread(&HandshakeHandler::rejectNewConnection, this, newSocket);
-                    rejectNewConnectionThread.detach();
+                    rejectNewConnection(newSocket);
                 }
             } else {
                 cout << "*** ERROR: The client has broken the defined protocol! ***" << endl;
@@ -180,4 +181,6 @@ HandshakeHandler::~HandshakeHandler() {
     }
 
     delete this->requestHandler;
+
+    cout << "==========> HandshakeHandler DESTRUCTOR!" << endl;
 }

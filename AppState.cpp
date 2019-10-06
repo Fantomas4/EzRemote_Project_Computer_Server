@@ -2,6 +2,7 @@
 // Created by Sierra Kilo on 31-Aug-19.
 //
 
+#include <iostream>
 #include "AppState.h"
 
 AppState::AppState(int port) {
@@ -33,3 +34,4 @@ void AppState::setPort(int port) {
 int AppState::getPort() {
     return port;
 }
+

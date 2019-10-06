@@ -5,8 +5,8 @@
 #ifndef EZREMOTE_PROJECT_APP_H
 #define EZREMOTE_PROJECT_APP_H
 
-#include "RemoteServer.h"
-
+#include "AppState.h"
+#include "HandshakeHandler.h"
 
 class App {
 
@@ -14,15 +14,16 @@ private:
 
     AppState appState;
 
-    RemoteServer remoteServer;
+    HandshakeHandler handshakeHandler;
 
 public:
     App();
+    ~App();
 
 };
 
 int main() {
-    App app = App();
+    App();
     return 0;
 }
 

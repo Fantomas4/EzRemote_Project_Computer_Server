@@ -135,6 +135,9 @@ RequestHandler::~RequestHandler() {
     if (this->requestListenerThread.joinable()) {
         this->requestListenerThread.join();
     }
+
+    cout << "==========> RequestHandler DESTRUCTOR!" << endl;
+
 }
 
 RequestHandler::RequestHandler(RequestHandler &&obj) : requestListenerThread(std::move(obj.requestListenerThread)) {

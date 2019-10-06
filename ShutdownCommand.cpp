@@ -27,6 +27,7 @@ ShutdownCommand::ShutdownCommand() {
 
 void ShutdownCommand::startShutdownTimerThread(TimeObject time_data) {
     this->timerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
+    this->timerThread.join();
 }
 
 bool ShutdownCommand::getTerminateTimerFlagValue() {
@@ -61,19 +62,11 @@ void ShutdownCommand::startShutdownTimer(TimeObject time_data) {
             break;
         } else if (elapsed_ms >= t_target) {
             cout << "\n\n" << "&&&&&&&&&&&&&&&&&&&&&& TELOS TIMER" << endl;
-#ifdef _WIN32
-            // -s is used for shutdown, -f is used to force shutdown,
-            // preventing the computer from getting stuck from background applications.
-            //system("shutdown -s -f");
-            cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
-#else
-            //                system("shutdown -P now");
-                cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
-#endif
+            executeShutdown();
+
             break;
         }
     }
-
 }
 
 
@@ -94,11 +87,6 @@ void ShutdownCommand::executeShutdown(){
 
 }
 
-ShutdownCommand::~ShutdownCommand() {
-    if (this->timerThread.joinable()) {
-        this->timerThread.join();
-    }
-}
 
 ShutdownCommand::ShutdownCommand(ShutdownCommand &&obj) : timerThread(std::move(obj.timerThread)){
     std::cout << "Move Constructor is called" << std::endl;
@@ -113,4 +101,12 @@ ShutdownCommand &ShutdownCommand::operator=(ShutdownCommand &&obj) {
     timerThread = std::move(obj.timerThread);
 
     return *this;
+}
+
+ShutdownCommand::~ShutdownCommand() {
+    if (this->timerThread.joinable()) {
+        this->timerThread.join();
+    }
+    cout << "==========> ShutdownCommand DESTRUCTOR!" << endl;
+
 }

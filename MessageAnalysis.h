@@ -23,6 +23,8 @@ public:
 
     MessageAnalysis();
 
+    ~MessageAnalysis();
+
     nlohmann::json processReceivedMessage(std::string received_msg);
 
 

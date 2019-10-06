@@ -24,13 +24,11 @@ using namespace std;
 //
 //}
 
-MessageAnalysis::MessageAnalysis() {
+MessageAnalysis::MessageAnalysis() : commandExec(){
     // https://stackoverflow.com/questions/10673585/start-thread-with-member-function
     // The multi-argument version of the std::thread constructor works as if the arguments were passed to std::bind.
     // To call a member function, the first argument to std::bind must be a pointer, reference, or
     // shared pointer to an object of the appropriate type
-    commandExec = CommandExec();
-
 }
 
 nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg) {
@@ -89,4 +87,9 @@ nlohmann::json MessageAnalysis::processReceivedMessage(std::string received_msg)
     }
 
     return jsonReplyMsg;
+}
+
+MessageAnalysis::~MessageAnalysis() {
+    cout << "==========> MessageAnalysis DESTRUCTOR!" << endl;
+
 }
