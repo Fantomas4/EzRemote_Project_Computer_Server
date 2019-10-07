@@ -6,6 +6,7 @@
 
 #include <string>
 #include <iostream>
+#include <cstring>
 
 int ConnectionHandler::recvMsg(SOCKET recvSocket, char *recv_buf) {
 

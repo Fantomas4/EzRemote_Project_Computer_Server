@@ -4,7 +4,11 @@
 
 
 #include <cstdio>
-#include <ws2tcpip.h>
+
+#ifdef __WIN32
+    #include <ws2tcpip.h>
+#endif
+
 #include <string>
 
 #include "HandshakeHandler.h"
