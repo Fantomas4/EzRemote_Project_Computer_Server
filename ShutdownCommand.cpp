@@ -27,7 +27,7 @@ ShutdownCommand::ShutdownCommand() {
 
 void ShutdownCommand::startShutdownTimerThread(TimeObject time_data) {
     this->timerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
-    this->timerThread.join();
+    this->timerThread.detach();
 }
 
 bool ShutdownCommand::getTerminateTimerFlagValue() {
@@ -104,9 +104,11 @@ ShutdownCommand &ShutdownCommand::operator=(ShutdownCommand &&obj) {
 }
 
 ShutdownCommand::~ShutdownCommand() {
-    if (this->timerThread.joinable()) {
-        this->timerThread.join();
-    }
-    cout << "==========> ShutdownCommand DESTRUCTOR!" << endl;
+
+//    cout << "==========> BEFORE this->timerThread.join()!" << endl;
+//    if (this->timerThread.joinable()) {
+//        this->timerThread.join();
+//    }
+//    cout << "==========> ShutdownCommand DESTRUCTOR!" << endl;
 
 }
