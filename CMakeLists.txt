@@ -7,4 +7,6 @@ add_executable(EzRemote_Project App.cpp App.h AppState.cpp AppState.h HandshakeH
 
 if(WIN32)
     target_link_libraries(EzRemote_Project wsock32 ws2_32)
+else()
+    target_link_libraries(EzRemote_Project pthread)
 endif()
