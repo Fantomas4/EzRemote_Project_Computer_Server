@@ -8,13 +8,13 @@
 // initializer list
 App::App(): appState(7890), handshakeHandler(&appState) {
     handshakeListenerThread = std::thread(&HandshakeHandler::handshakeListener, &this->handshakeHandler);
-    handshakeListenerThread.join();
+
 }
 
 App::~App() {
+    if (this->handshakeListenerThread.joinable()) {
+        this->handshakeListenerThread.join();
+    }
     std::cout << "==========> App DESTRUCTOR!" << std::endl;
-//    if (this->handshakeListenerThread.joinable()) {
-//        this->handshakeListenerThread.join();
-//    }
 };
 
