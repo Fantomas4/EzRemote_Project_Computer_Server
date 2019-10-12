@@ -12,19 +12,19 @@ AppState::AppState(int port) {
 }
 
 bool AppState::isInConnection() {
-    return in_connection;
+    return this->in_connection;
 }
 
 std::string AppState::getIpBondAddress() {
-    return ip_bond;
+    return this->ip_bond;
 }
 
 void AppState::setIpBondAddress(std::string ip) {
-    ip_bond = ip;
+    this->ip_bond = ip;
 }
 
 void AppState::setInConnectionValue(bool value) {
-    in_connection = true;
+    this->in_connection = value;
 }
 
 void AppState::setPort(int port) {
@@ -32,6 +32,9 @@ void AppState::setPort(int port) {
 }
 
 int AppState::getPort() {
-    return port;
+    return this->port;
 }
+
+
+
 

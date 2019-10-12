@@ -16,6 +16,8 @@ private:
 
     HandshakeHandler handshakeHandler;
 
+    std::thread handshakeListenerThread;
+
 public:
     App();
     ~App();

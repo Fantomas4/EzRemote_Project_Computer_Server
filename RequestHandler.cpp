@@ -3,29 +3,22 @@
 //
 
 #include "RequestHandler.h"
-#include "JSON.h"
+#include "TimeObject.h"
 
-#include <cstdio>
 #include <mutex>
 #include <iostream>
-#include <thread>
-#include <zconf.h>
 
 
-RequestHandler::RequestHandler(SOCKET clientSocket) : messageAnalysis() {
+RequestHandler::RequestHandler(AppState* appState, SOCKET clientSocket) : commandExec() {
+    this->appState = appState;
     this->clientSocket = clientSocket;
     this->terminateRequestHandler = false;
-    this->requestListenerThread = std::thread(&RequestHandler::requestListener, this);
-}
 
-void RequestHandler::stop() {
-    // Set the terminateRequestHandler flag to true
-    terminateRequestHandler = true;
 }
 
 void RequestHandler::requestListener() {
 
-#define DEFAULT_BUFLEN 1000
+    #define DEFAULT_BUFLEN 1000
 
     int recv_size;
     char recv_buf[DEFAULT_BUFLEN] = {0};   // Initialises all elements to null.
@@ -40,7 +33,7 @@ void RequestHandler::requestListener() {
             // -1 means SOCKET_ERROR in WinSock
             puts("Receive failed");
 
-#ifdef _WIN32
+        #ifdef _WIN32
 
             // Uh oh!  Something bad happened.  Let's
             // get the error code...
@@ -76,7 +69,7 @@ void RequestHandler::requestListener() {
             // and it does so using LocalAlloc
             // Gotcha!  I guess.
 
-#endif
+        #endif
 
         } else if (recv_size == 0) {
             // An empty message was received.
@@ -89,7 +82,7 @@ void RequestHandler::requestListener() {
         } else {
             // receive was successful
             std::string s_received_msg = recv_buf;
-            cout << "s_received_msg is: " << s_received_msg << endl;
+            std::cout << "s_received_msg is: " << s_received_msg << std::endl;
 
             handleRequestAndReply(s_received_msg);
         }
@@ -124,34 +117,94 @@ void RequestHandler::handleRequestAndReply(std::string receivedMsg) {
     // c_str() returns the contents of the string as a const char*
     // and the pointer it returns is valid as long as the given string object exists.
 
-    std::string temp_s = JSON::convertJsonToString(this->messageAnalysis.processReceivedMessage(receivedMsg));
+    std::string temp_s = JSON::convertJsonToString(processReceivedMessage(receivedMsg));
     const char *json_string = temp_s.c_str();
 
     sendMessage(json_string);
 
 }
 
+nlohmann::json RequestHandler::processReceivedMessage(std::string received_msg) {
+
+    std::cout << "\n\ns_msg inside process_received_message() is : " << received_msg << std::endl;
+
+    nlohmann::json jsonReplyMsg;
+
+    nlohmann::json jsonReceivedMsg = nlohmann::json::parse(received_msg);
+
+    std::string request = jsonReceivedMsg["request"];
+
+    if (request == "EXECUTE_SHUTDOWN_COMMAND") {
+        // extract string data from the json message
+        nlohmann::json msgData = jsonReceivedMsg["data"];
+
+        std::string s_hrs = msgData["hours"];
+        std::string s_mns = msgData["mins"];
+        std::string s_secs = msgData["secs"];
+        std::string s_msecs = msgData["msecs"];
+
+        // stoul converts the string from the temp variables above to the wanted unsigned integer type.
+        unsigned int hours = std::stoul(s_hrs);
+        unsigned int mins = std::stoul(s_mns);
+        unsigned int secs = std::stoul(s_secs);
+        unsigned int msecs = std::stoul(s_msecs);
+
+        // prepare the response to the client
+        std::map<std::string, std::string> data;
+
+        jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
+
+        commandExec.getShutdownCommandObjPtr()->startShutdownTimerThread(TimeObject(hours, mins, secs, msecs));
+
+    } else if (request == "CANCEL_SHUTDOWN_COMMAND") {
+
+        commandExec.getShutdownCommandObjPtr()->cancelShutdownTimer();
+
+        if (commandExec.getShutdownCommandObjPtr()->getTerminateTimerFlagValue()) {
+            // prepare the response to the client
+            std::map<std::string, std::string> data;
+            jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
+        }
+
+    } else if (request == "TERMINATE_CONNECTION") {
+        std::cout << "============> TERMINATE_CONNECTION request RECEIVED!" << std::endl;
+        this->terminateRequestHandler = true;
+        this->appState->setInConnectionValue(false);
+        // prepare the response to the client
+        std::map<std::string, std::string> data;
+        jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
+
+
+    } else if (request == "HEARTBEAT_CHECK") {
+        // prepare the response to the client
+        std::map<std::string, std::string> data;
+        jsonReplyMsg = JSON::prepareJsonReply("SUCCESS", data);
+    }
+
+    return jsonReplyMsg;
+}
+
 RequestHandler::~RequestHandler() {
-    if (this->requestListenerThread.joinable()) {
-        this->requestListenerThread.join();
-    }
+//    if (this->requestListenerThread.joinable()) {
+//        this->requestListenerThread.join();
+//    }
 
-    cout << "==========> RequestHandler DESTRUCTOR!" << endl;
+    std::cout << "==========> RequestHandler DESTRUCTOR!" << std::endl;
 
 }
 
-RequestHandler::RequestHandler(RequestHandler &&obj) : requestListenerThread(std::move(obj.requestListenerThread)) {
-    std::cout << "Move Constructor is called" << std::endl;
-}
-
-RequestHandler &RequestHandler::operator=(RequestHandler &&obj) {
-    std::cout << "Move Assignment is called" << std::endl;
-    if (requestListenerThread.joinable()) {
-        requestListenerThread.join();
-    }
-    requestListenerThread = std::move(obj.requestListenerThread);
-
-
-    return *this;
-}
+//RequestHandler::RequestHandler(RequestHandler &&obj) : requestListenerThread(std::move(obj.requestListenerThread)) {
+//    std::cout << "Move Constructor is called" << std::endl;
+//}
+//
+//RequestHandler &RequestHandler::operator=(RequestHandler &&obj) {
+//    std::cout << "Move Assignment is called" << std::endl;
+//    if (requestListenerThread.joinable()) {
+//        requestListenerThread.join();
+//    }
+//    requestListenerThread = std::move(obj.requestListenerThread);
+//
+//
+//    return *this;
+//}
 

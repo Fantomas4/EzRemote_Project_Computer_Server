@@ -20,8 +20,6 @@ class HandshakeHandler:ConnectionHandler {
 private:
     AppState* appState;
 
-    std::thread handshakeListenerThread;
-
     RequestHandler* requestHandler;
 
     void acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData);
@@ -30,7 +28,7 @@ private:
 
     bool stopHandshakeListener;
 
-
+    std::thread requestListenerThread;
 
 public:
 
@@ -38,19 +36,6 @@ public:
     HandshakeHandler() = delete;
 
     HandshakeHandler(AppState* appState);
-
-    //Delete the copy constructor
-    HandshakeHandler(const HandshakeHandler&) = delete;
-
-    //Delete the Assignment operator
-    HandshakeHandler& operator=(const HandshakeHandler&) = delete;
-
-    // Move Constructor
-    HandshakeHandler(HandshakeHandler && obj);
-
-    //Move Assignment Operator
-    HandshakeHandler & operator=(HandshakeHandler && obj);
-
 
     void handshakeListener();
 

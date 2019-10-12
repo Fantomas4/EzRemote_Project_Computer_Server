@@ -7,6 +7,7 @@
 
 
 #include <string>
+#include <atomic>
 
 class AppState {
 
@@ -14,7 +15,7 @@ private:
     // states the port used by the server
     int port;
     // states whether the server is currently connected to a client.
-    bool in_connection;
+    std::atomic<bool> in_connection;
     // holds the ip of the client that the application is currently bonded to.
     std::string ip_bond;
 

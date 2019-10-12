@@ -18,12 +18,15 @@
 HandshakeHandler::HandshakeHandler(AppState* appState) {
     this->appState = appState;
     this->stopHandshakeListener = false;
-    this->handshakeListenerThread = std::thread(&HandshakeHandler::handshakeListener, this);
-
 }
 
 void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData) {
     printf("A new connection has been accepted!\n");
+
+    // Join the previous Request Listener Thread before starting a new one!
+    if (this->requestListenerThread.joinable()) {
+        this->requestListenerThread.join();
+    }
 
     // set the inConnection status and ip bond at the RemoteServer
     this->appState->setInConnectionValue(true);
@@ -39,7 +42,8 @@ void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMs
     ConnectionHandler::sendMsg(newSocket, outboundMsg);
 
     // start the request handler for the accepted client
-    this->requestHandler = new RequestHandler(newSocket);
+    this->requestHandler = new RequestHandler(this->appState, newSocket);
+    this->requestListenerThread = std::thread(&RequestHandler::requestListener, this->requestHandler);
 }
 
 void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
@@ -164,24 +168,9 @@ void HandshakeHandler::handshakeListener() {
 }
 
 
-HandshakeHandler::HandshakeHandler(HandshakeHandler &&obj) : handshakeListenerThread(std::move(obj.handshakeListenerThread)) {
-    std::cout << "Move Constructor is called" << std::endl;
-}
-
-HandshakeHandler &HandshakeHandler::operator=(HandshakeHandler &&obj) {
-    std::cout << "Move Assignment is called" << std::endl;
-    if (handshakeListenerThread.joinable()) {
-        handshakeListenerThread.join();
-    }
-    handshakeListenerThread = std::move(obj.handshakeListenerThread);
-
-    return *this;
-}
-
 HandshakeHandler::~HandshakeHandler() {
-
-    if (this->handshakeListenerThread.joinable()) {
-        this->handshakeListenerThread.join();
+    if (requestListenerThread.joinable()) {
+        requestListenerThread.join();
     }
 
     delete this->requestHandler;
