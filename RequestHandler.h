@@ -5,37 +5,56 @@
 #ifndef EZREMOTE_PROJECT_REQUESTHANDLER_H
 #define EZREMOTE_PROJECT_REQUESTHANDLER_H
 
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
 
 #include <string>
-#include "MessageAnalysis.h"
-#include "RemoteServer.h"
+#include <thread>
 
-class RequestHandler:RemoteServer {
+#include "ConnectionHandler.h"
+#include "CommandExec.h"
+#include "JSON.h"
+#include "AppState.h"
+
+
+class RequestHandler:ConnectionHandler {
 
 private:
 
+    AppState* appState;
+
     SOCKET clientSocket;
 
-    MessageAnalysis messageAnalysis;
+    CommandExec commandExec;
 
-    std::atomic<bool> terminateRequestHandler;
-
-    void requestListener();
+    bool terminateRequestHandler;
 
     void sendMessage(const char *outbound_msg);
 
     void handleRequestAndReply(std::string receivedMsg);
 
+    nlohmann::json processReceivedMessage(std::string received_msg);
+
 public:
 
-    RequestHandler(SOCKET clientSocket);
+    // delete default constructor
+    RequestHandler() = delete;
 
-    void start();
+    RequestHandler(AppState* appState, SOCKET clientSocket);
 
-    void stop();
+//    //Delete the copy constructor
+//    RequestHandler(const RequestHandler&) = delete;
+//
+//    //Delete the Assignment operator
+//    RequestHandler& operator=(const RequestHandler&) = delete;
+//
+//    // Move Constructor
+//    RequestHandler(RequestHandler&& obj);
+//
+//    //Move Assignment Operator
+//    RequestHandler& operator=(RequestHandler&& obj);
+
+    void requestListener();
+
+    ~RequestHandler();
 };
 
 

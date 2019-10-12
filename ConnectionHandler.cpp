@@ -1,55 +1,14 @@
 //
-// Created by Sierra Kilo on 06-Aug-18.
+// Created by Sierra Kilo on 31-Aug-19.
 //
 
+#include "ConnectionHandler.h"
+
+#include <string>
 #include <iostream>
 #include <cstring>
-#include <thread>
-#include "RemoteServer.h"
-#include "HandshakeHandler.h"
 
-
-RemoteServer::RemoteServer() {}
-
-//https://stackoverflow.com/questions/12927169/how-can-i-initialize-c-object-member-variables-in-the-constructor
-RemoteServer::RemoteServer(int port) {
-    this->port = port;
-    this->start();
-}
-
-RemoteServer::~RemoteServer() {
-    serverQuit();
-}
-
-void RemoteServer::start() {
-    HandshakeHandler handshakeHandler = HandshakeHandler(this);
-
-    std::thread handshakeListenerThread = std::thread(&HandshakeHandler::handshakeListener, handshakeHandler);
-    handshakeListenerThread.join();
-
-}
-
-void RemoteServer::stop() {
-
-}
-
-bool RemoteServer::isInConnection() {
-    return in_connection;
-}
-
-std::string RemoteServer::getIpBondAddress() {
-    return ip_bond;
-}
-
-void RemoteServer::setIpBondAddress(std::string ip) {
-    ip_bond = ip;
-}
-
-void RemoteServer::setInConnectionValue(bool value) {
-    in_connection = true;
-}
-
-int RemoteServer::recvMsg(SOCKET recvSocket, char *recv_buf) {
+int ConnectionHandler::recvMsg(SOCKET recvSocket, char *recv_buf) {
 
     // empty the recv_buf buffer by filling it with 0 (null)
     *recv_buf = {0};
@@ -93,7 +52,7 @@ int RemoteServer::recvMsg(SOCKET recvSocket, char *recv_buf) {
     return total_size;
 }
 
-void RemoteServer::sendMsg(SOCKET sendSocket, const char* outboundMsg) {
+void ConnectionHandler::sendMsg(SOCKET sendSocket, const char* outboundMsg) {
 
     std::cout << "ConnectionHandler outbound_msg is: " << std::endl;
 
@@ -103,7 +62,7 @@ void RemoteServer::sendMsg(SOCKET sendSocket, const char* outboundMsg) {
     send(sendSocket , outboundMsg, strlen(outboundMsg) , 0);
 }
 
-int RemoteServer::sockInit() {
+int ConnectionHandler::sockInit() {
 #ifdef _WIN32
     WSADATA wsa_data;
     return WSAStartup(MAKEWORD(1,1), &wsa_data);
@@ -114,7 +73,7 @@ int RemoteServer::sockInit() {
 
 /* Note: For POSIX, typedef SOCKET as an int. */
 
-int RemoteServer::sockClose(SOCKET sock) {
+int ConnectionHandler::sockClose(SOCKET sock) {
 
     int status = 0;
 
@@ -134,7 +93,7 @@ int RemoteServer::sockClose(SOCKET sock) {
 
 }
 
-int RemoteServer::serverQuit() {
+int ConnectionHandler::serverQuit() {
 #ifdef _WIN32
     return WSACleanup();
 #else

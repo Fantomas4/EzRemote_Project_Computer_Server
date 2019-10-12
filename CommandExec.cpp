@@ -15,14 +15,18 @@
 
 using namespace std;
 
-CommandExec::CommandExec() {
+CommandExec::CommandExec() : shutdownCommand() {
 
-    shutdown_command = ShutdownCommand();
 
 }
 
 ShutdownCommand* CommandExec::getShutdownCommandObjPtr() {
-    return &shutdown_command;
+    return &shutdownCommand;
+}
+
+CommandExec::~CommandExec() {
+    cout << "==========> CommandExec DESTRUCTOR!" << endl;
+
 }
 
 //map<string, string> CommandExec::get_identification_info() {

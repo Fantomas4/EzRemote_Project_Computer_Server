@@ -26,8 +26,8 @@ ShutdownCommand::ShutdownCommand() {
 }
 
 void ShutdownCommand::startShutdownTimerThread(TimeObject time_data) {
-    std::thread shutdownTimerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
-    shutdownTimerThread.detach();
+    this->timerThread = std::thread(&ShutdownCommand::startShutdownTimer, this, time_data);
+    this->timerThread.detach();
 }
 
 bool ShutdownCommand::getTerminateTimerFlagValue() {
@@ -62,24 +62,16 @@ void ShutdownCommand::startShutdownTimer(TimeObject time_data) {
             break;
         } else if (elapsed_ms >= t_target) {
             cout << "\n\n" << "&&&&&&&&&&&&&&&&&&&&&& TELOS TIMER" << endl;
-#ifdef _WIN32
-            // -s is used for shutdown, -f is used to force shutdown,
-            // preventing the computer from getting stuck from background applications.
-            //system("shutdown -s -f");
-            cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
-#else
-            //                system("shutdown -P now");
-                cout << "\n\n---------------------Diag: Shutdown would be executed here!" << endl << endl;
-#endif
+            executeShutdown();
+
             break;
         }
     }
-
 }
 
 
 
-void ShutdownCommand::shutdownCommand(){
+void ShutdownCommand::executeShutdown(){
 #ifdef _WIN32
 
 
@@ -92,5 +84,31 @@ void ShutdownCommand::shutdownCommand(){
 //    usleep(time_data.get_msecs() * 1000);   // usleep takes sleep time in us (1 millionth of a second)
 #endif
 
+
+}
+
+
+ShutdownCommand::ShutdownCommand(ShutdownCommand &&obj) : timerThread(std::move(obj.timerThread)){
+    std::cout << "Move Constructor is called" << std::endl;
+
+}
+
+ShutdownCommand &ShutdownCommand::operator=(ShutdownCommand &&obj) {
+    std::cout << "Move Assignment is called" << std::endl;
+    if (timerThread.joinable()) {
+        timerThread.join();
+    }
+    timerThread = std::move(obj.timerThread);
+
+    return *this;
+}
+
+ShutdownCommand::~ShutdownCommand() {
+
+//    cout << "==========> BEFORE this->timerThread.join()!" << endl;
+//    if (this->timerThread.joinable()) {
+//        this->timerThread.join();
+//    }
+//    cout << "==========> ShutdownCommand DESTRUCTOR!" << endl;
 
 }

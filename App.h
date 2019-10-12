@@ -5,17 +5,29 @@
 #ifndef EZREMOTE_PROJECT_APP_H
 #define EZREMOTE_PROJECT_APP_H
 
-#include "RemoteServer.h"
+#include "AppState.h"
+#include "HandshakeHandler.h"
 
 class App {
 
 private:
-    RemoteServer remoteServer;
+
+    AppState appState;
+
+    HandshakeHandler handshakeHandler;
+
+    std::thread handshakeListenerThread;
 
 public:
     App();
+    ~App();
 
 };
+
+int main() {
+    App();
+    return 0;
+}
 
 
 #endif //EZREMOTE_PROJECT_APP_H

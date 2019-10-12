@@ -19,11 +19,13 @@ using namespace std;
 class CommandExec {
 
 private:
-    ShutdownCommand shutdown_command;
+    ShutdownCommand shutdownCommand;
 
 
 public:
     CommandExec();
+
+    ~CommandExec();
 
     ShutdownCommand* getShutdownCommandObjPtr() ;
 

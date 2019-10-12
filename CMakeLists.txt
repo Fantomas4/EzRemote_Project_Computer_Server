@@ -3,14 +3,10 @@ project(EzRemote_Project)
 
 set(CMAKE_CXX_STANDARD 11)
 
-option (USE_WINDOWS_LIB
-            "Use the libraries needed by Windows" OΝ)
+add_executable(EzRemote_Project App.cpp App.h AppState.cpp AppState.h HandshakeHandler.cpp HandshakeHandler.h RequestHandler.cpp RequestHandler.h JSON.cpp JSON.h CommandExec.cpp CommandExec.h ShutdownCommand.cpp ShutdownCommand.h TimeObject.cpp TimeObject.h ConnectionHandler.cpp ConnectionHandler.h)
 
-if (USE_WINDOWS_LIB)
-    link_libraries(ws2_32 wsock32)
-else(USE_WINDOWS_LIB)
-    # use the libraries needed by Linux
-    link_libraries(pthread)
-endif(USE_WINDOWS_LIB)
-
-add_executable(EzRemote_Project main.cpp App.cpp App.h RemoteServer.cpp RemoteServer.h HandshakeHandler.cpp HandshakeHandler.h RequestHandler.cpp RequestHandler.h JSON.cpp JSON.h CommandExec.cpp CommandExec.h ShutdownCommand.cpp ShutdownCommand.h TimeObject.cpp TimeObject.h MessageAnalysis.cpp MessageAnalysis.h)
+if(WIN32)
+    target_link_libraries(EzRemote_Project wsock32 ws2_32)
+else()
+    target_link_libraries(EzRemote_Project pthread)
+endif()

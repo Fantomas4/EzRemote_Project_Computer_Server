@@ -1,7 +1,6 @@
 //
-// Created by Sierra Kilo on 06-Aug-18.
+// Created by Sierra Kilo on 31-Aug-19.
 //
-
 
 #ifndef EZREMOTE_PROJECT_CONNECTIONHANDLER_H
 #define EZREMOTE_PROJECT_CONNECTIONHANDLER_H
@@ -23,19 +22,9 @@ typedef int SOCKET;
 
 #endif
 
-#include <string>
-
-class RemoteServer {
+class ConnectionHandler {
 
 protected:
-
-    int port;
-
-    // states whether the server is currently connected to a client.
-    bool in_connection;
-    // holds the ip of the client that the application is currently bonded to.
-    std::string ip_bond;
-
     int recvMsg(SOCKET recvSocket, char *recv_buf);
 
     void sendMsg(SOCKET sendSocket, const char* outboundMsg);
@@ -45,26 +34,6 @@ protected:
     int sockClose(SOCKET sock);
 
     int serverQuit();
-
-public:
-    RemoteServer();
-
-    RemoteServer(int port);
-
-    ~RemoteServer();
-
-    virtual void start();
-
-    virtual void stop();
-
-    void setInConnectionValue(bool value);
-
-    bool isInConnection();
-
-    void setIpBondAddress(std::string ip);
-
-    std::string getIpBondAddress();
-
 };
 
 

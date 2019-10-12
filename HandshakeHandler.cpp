@@ -2,50 +2,48 @@
 // Created by Sierra Kilo on 10-Mar-19.
 //
 
-#include "HandshakeHandler.h"
-#include "RequestHandler.h"
-
-#ifdef _WIN32
-
-#include <ws2tcpip.h>
-
-#else
-
-#endif
 
 #include <cstdio>
 
+#ifdef __WIN32
+    #include <ws2tcpip.h>
+#endif
 
-HandshakeHandler::HandshakeHandler(RemoteServer* remoteServerPtr) {
-    this->remoteServerPtr = remoteServerPtr;
+#include <string>
+
+#include "HandshakeHandler.h"
+#include "RequestHandler.h"
+
+
+HandshakeHandler::HandshakeHandler(AppState* appState) {
+    this->appState = appState;
     this->stopHandshakeListener = false;
-
 }
-
-HandshakeHandler::~HandshakeHandler() {
-    delete this->requestHandler;
-}
-
 
 void HandshakeHandler::acceptNewConnection(SOCKET newSocket, nlohmann::json inMsgData) {
     printf("A new connection has been accepted!\n");
 
+    // Join the previous Request Listener Thread before starting a new one!
+    if (this->requestListenerThread.joinable()) {
+        this->requestListenerThread.join();
+    }
+
     // set the inConnection status and ip bond at the RemoteServer
-    this->remoteServerPtr->setInConnectionValue(true);
-    this->remoteServerPtr->setIpBondAddress(inMsgData["client_ip"]);
+    this->appState->setInConnectionValue(true);
+    this->appState->setIpBondAddress(inMsgData["client_ip"]);
 
     // send a success response to the client to inform him that the
     // make_connection request has been accepted
-    std::map<string, string> msgData;
+    std::map<std::string, std::string> msgData;
 
     std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("SUCCESS", msgData));
     const char *outboundMsg = temp_s.c_str();
 
-    RemoteServer::sendMsg(newSocket, outboundMsg);
+    ConnectionHandler::sendMsg(newSocket, outboundMsg);
 
     // start the request handler for the accepted client
-    this->requestHandler = new RequestHandler(newSocket);
-    this->requestHandler->start();
+    this->requestHandler = new RequestHandler(this->appState, newSocket);
+    this->requestListenerThread = std::thread(&RequestHandler::requestListener, this->requestHandler);
 }
 
 void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
@@ -57,7 +55,7 @@ void HandshakeHandler::rejectNewConnection(SOCKET rejSocket) {
     std::string temp_s = JSON::convertJsonToString(JSON::prepareJsonReply("FAIL", msgData));
     const char *outboundMsg = temp_s.c_str();
 
-    RemoteServer::sendMsg(rejSocket, outboundMsg);
+    ConnectionHandler::sendMsg(rejSocket, outboundMsg);
 }
 
 void HandshakeHandler::handshakeListener() {
@@ -127,6 +125,9 @@ void HandshakeHandler::handshakeListener() {
     c = sizeof(struct sockaddr_in);
 
     while (!this->stopHandshakeListener) {
+
+        cout << "==========> HandshakeListener LOOP" << endl;
+
         SOCKET newSocket = accept(s , (struct sockaddr *)&client, &c);
 
 
@@ -137,7 +138,7 @@ void HandshakeHandler::handshakeListener() {
         int recv_size;
         char recv_buf[DEFAULT_BUFLEN] = {0};
 
-        recv_size = RemoteServer::recvMsg(newSocket, recv_buf);
+        recv_size = ConnectionHandler::recvMsg(newSocket, recv_buf);
 
         if (recv_size == -1) {
             // -1 means SOCKET_ERROR in WinSock
@@ -152,18 +153,27 @@ void HandshakeHandler::handshakeListener() {
             if (request == "INITIALIZE_NEW_CONNECTION") {
 
                 // if the server is not already dedicated to a connection with a client
-                if (!this->remoteServerPtr->isInConnection()) {
-                    std::thread acceptNewConnectionThread(&HandshakeHandler::acceptNewConnection, this, newSocket, jsonReceivedMsg["data"]);
-                    acceptNewConnectionThread.detach();
+                if (!this->appState->isInConnection()) {
+                    acceptNewConnection(newSocket, jsonReceivedMsg["data"]);
                 } else {
                     // if the server is already in a connection with a client,
                     // reject the connection request
-                    std::thread rejectNewConnectionThread(&HandshakeHandler::rejectNewConnection, this, newSocket);
-                    rejectNewConnectionThread.detach();
+                    rejectNewConnection(newSocket);
                 }
             } else {
                 cout << "*** ERROR: The client has broken the defined protocol! ***" << endl;
             }
         }
     }
+}
+
+
+HandshakeHandler::~HandshakeHandler() {
+    if (requestListenerThread.joinable()) {
+        requestListenerThread.join();
+    }
+
+    delete this->requestHandler;
+
+    cout << "==========> HandshakeHandler DESTRUCTOR!" << endl;
 }
